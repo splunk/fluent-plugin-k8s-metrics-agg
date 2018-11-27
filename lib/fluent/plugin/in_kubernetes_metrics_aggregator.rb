@@ -195,7 +195,7 @@ module Fluent
 
         # Use SSL certificate and bearer token from Kubernetes service account.
         if Dir.exist?(@secret_dir)
-          secret_ca_file = File.join(@secret_dir, 'ca.cert')
+          secret_ca_file = File.join(@secret_dir, 'ca.crt')
           secret_token_file = File.join(@secret_dir, 'token')
 
           if @ca_file.nil? && File.exist?(secret_ca_file)
@@ -231,23 +231,20 @@ module Fluent
       end
 
       def initialize_client
-        if @use_rest_client
-          initialize_rest_client
-        else
-          options = {
-            timeouts: {
-              open: 10,
-              read: nil
-            }
+        options = {
+          timeouts: {
+            open: 10,
+            read: nil
           }
+        }
 
-          if @kubeconfig.nil?
-            init_without_kubeconfig options
-          else
-            init_with_kubeconfig options
-          end
+        if @kubeconfig.nil?
+          init_without_kubeconfig options
+        else
+          init_with_kubeconfig options
         end
       end
+
 
       def parse_time(metric_time)
         Fluent::EventTime.from_time Time.iso8601(metric_time)
