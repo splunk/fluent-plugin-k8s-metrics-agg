@@ -1,6 +1,6 @@
 # fluent-plugin-k8s-metrics-agg
 
-[Fluentd](https://fluentd.org/) input plugin to collect kubernetes cluster metrics from the kubeapiserver API, exposed by [KubeApiServer](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/) on a kubernetes cluster.
+[Fluentd](https://fluentd.org/) input plugin collects kubernetes cluster metrics from the kubeapiserver API. The API is exposed by [KubeApiServer](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/) on a kubernetes cluster.
 
 ## Installation
 
@@ -36,55 +36,55 @@ $ bundle
 
 ### tag (string) (optional)
 
-The tag of the event.
+The event tag.
 
 Default value: `kubernetes.metrics.*`.
 
 ### interval (time) (optional)
 
-How often it pulls metrcs.
+How often the plugin pulls metrcs.
 
 Default value: `15s`.
 
 ### kubeconfig (string) (optional)
 
-Path to a kubeconfig file points to a cluster the plugin should collect metrics from. Mostly useful when running fluentd outside of the cluster. When `kubeconfig` is set, `kubernetes_url`, `client_cert`, `client_key`, `ca_file`, `insecure_ssl`, `bearer_token_file`, and `secret_dir` will all be ignored.
+The path to a kubeconfig file points to a cluster from which the plugin should collect metrics. This is mostly useful when running fluentd outside of the cluster. When `kubeconfig` is set, the `kubernetes_url`, `client_cert`, `client_key`, `ca_file`, `insecure_ssl`, `bearer_token_file`, and `secret_dir` are ignored.
 
 ### client_cert (string) (optional)
 
-Path to the certificate file for this client.
+The path to the certificate file for this client.
 
 ### client_key (string) (optional)
 
-Path to the private key file for this client.
+The path to the private key file for this client.
 
 ### ca_file (string) (optional)
 
-Path to the CA file.
+The path to the CA file.
 
 ### insecure_ssl (bool) (optional)
 
-If `insecure_ssl` is set to `true`, it won't verify apiserver's certificate.
+When `insecure_ssl` is set to `true`, the plugin does not verify the apiserver's certificate.
 
 ### bearer_token_file (string) (optional)
 
-Path to the file contains the API token. By default it reads from the file "token" in the `secret_dir`.
+The path to the file contains the API token. By default the plugin reads from the file "token" in the `secret_dir`.
 
 ### secret_dir (string) (optional)
 
-Path of the location where pod's service account's credentials are stored.
+The path to the location of the pod's service account credentials.
 
 Default value: `/var/run/secrets/kubernetes.io/serviceaccount`.
 
 ### kubelet_port (integer) (optional)
 
-The port that kubelet is listening to.
+The port that the kubelet is listening to.
 
 Default value: `10255`.
 
 ### cluster_name (string) (optional)
 
-The name of the cluster, where the plugin is deployed.
+The name of the cluster where the plugin is deployed.
 
 Default value: `cluster_name`.
 
