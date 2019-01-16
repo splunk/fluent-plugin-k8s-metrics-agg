@@ -15,8 +15,6 @@ require 'time'
 require 'fluent/plugin/input'
 require 'kubeclient'
 require 'multi_json'
-require 'thread'
-
 module Fluent
   module Plugin
     class KubernetesMetricsAggregatorInput < Fluent::Plugin::Input
@@ -69,18 +67,29 @@ module Fluent
 
         # https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#meaning-of-memory
         def get_memory_mult(memory)
-          memory_mult = 1
-          if memory[-2] == 'Ki'
-            memory_mult = 0.001
-          elsif memory[-2] == 'Mi'
-            memory_mult = 1
-          elsif memory[-2] == 'Gi'
-            memory_mult = 1000
-          elsif memory[-2] == 'Ti'
-            memory_mult = 1_000_000
-          elsif memory[-2] == 'Ei'
-            memory_mult = 1_000_000_000
-          end
+          memory_mult = if memory[-2] == 'Ki'
+                          0.001
+                        elsif memory[-2] == 'K'
+                          1.0 / 1024
+                        elsif memory[-2] == 'Mi'
+                          1
+                        elsif memory[-2] == 'M'
+                          1
+                        elsif memory[-2] == 'Gi'
+                          1000
+                        elsif memory[-2] == 'G'
+                          1024
+                        elsif memory[-2] == 'Ti'
+                          1_000_000
+                        elsif memory[-2] == 'T'
+                          1_048_576
+                        elsif memory[-2] == 'Ei'
+                          1_000_000_000
+                        elsif memory[-2] == 'E'
+                          1_073_741_824
+                        else
+                          0.000001
+                        end
           memory_mult
         end
       end
@@ -245,7 +254,6 @@ module Fluent
         end
       end
 
-
       def parse_time(metric_time)
         Fluent::EventTime.from_time Time.iso8601(metric_time)
       end
@@ -254,13 +262,54 @@ module Fluent
         camlcase.gsub(/[A-Z]/) { |c| "_#{c.downcase}" }
       end
 
-      def get_cpu_or_memory_value(resource)
-        resource = resource.tr('^0-9', '').to_i
-        resource
+      def get_cpu_mult(cpu)
+        cpu_mult = 1
+        cpu_mult = 1000 if cpu[-1] != 'm'
+        cpu_mult
+      end
+
+      def get_cpu_value(resource)
+        cpu_val = resource.tr('^0-9', '').to_i
+        mult = get_cpu_mult(resource)
+        cpu_val += cpu_val * mult
+        cpu_val
+      end
+
+      def get_memory_mult(memory)
+        memory_mult = if memory[-2] == 'Ki'
+                        0.001
+                      elsif memory[-2] == 'K'
+                        1.0 / 1024
+                      elsif memory[-2] == 'Mi'
+                        1
+                      elsif memory[-2] == 'M'
+                        1
+                      elsif memory[-2] == 'Gi'
+                        1000
+                      elsif memory[-2] == 'G'
+                        1024
+                      elsif memory[-2] == 'Ti'
+                        1_000_000
+                      elsif memory[-2] == 'T'
+                        1_048_576 # 1024*1024
+                      elsif memory[-2] == 'Ei'
+                        1_000_000_000
+                      elsif memory[-2] == 'E'
+                        1_073_741_824 # 1024*1024*1024
+                      else
+                        0.000001
+                      end
+        memory_mult
+      end
+
+      def get_memory_value(resource)
+        mem_val = resource.tr('^0-9', '').to_i
+        mult = get_memory_mult(resource)
+        mem_val += mem_val * mult
+        mem_val
       end
 
       def emit_limits_requests_metrics(tag, scraped_at, labels, limits_requests_metric)
-        log.debug "emitting #{limits_requests_metric.instance_variable_get(:@cpu_limit)},#{limits_requests_metric.instance_variable_get(:@cpu_request)},#{limits_requests_metric.instance_variable_get(:@memory_limit)},#{limits_requests_metric.instance_variable_get(:@memory_request)} using #{tag}, #{scraped_at}, #{labels}"
         router.emit tag.concat('.cpu.limit'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@cpu_limit))
         labels['value'] = limits_requests_metric.instance_variable_get(:@cpu_request)
         router.emit tag.gsub!('.cpu.limit', '.cpu.request'), Fluent::EventTime.from_time(scraped_at), labels
@@ -271,7 +320,6 @@ module Fluent
       end
 
       def emit_resource_usage_metrics(tag, scraped_at, labels, resource_usage_metric)
-        log.debug "emitting #{resource_usage_metric.instance_variable_get(:@cpu_usage)},#{resource_usage_metric.instance_variable_get(:@memory_usage)}} using #{tag}, #{scraped_at}, #{labels}"
         router.emit tag.concat('.cpu.usage'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => resource_usage_metric.instance_variable_get(:@cpu_usage))
         labels['value'] = resource_usage_metric.instance_variable_get(:@memory_usage)
         router.emit tag.gsub!('.cpu.usage', '.memory.usage'), Fluent::EventTime.from_time(scraped_at), labels
@@ -288,7 +336,7 @@ module Fluent
       end
 
       def scrape_limits_requests_metrics
-        response = limits_requests_api().get(@client.headers)
+        response = limits_requests_api.get(@client.headers)
         handle_limits_requests_res(response)
       end
 
@@ -307,65 +355,60 @@ module Fluent
       end
 
       def process_limits_requests_res(response)
-
         @scraped_at = Time.now
-        Array(response['items']).each do |pod_json|
-          pod_namespace = pod_json['metadata']['namespace']
-          pod_node_name = pod_json['spec']['nodeName']
-          if @@namespace_usage_metrics_map[pod_namespace].nil?
-            namespace_usage_metrics = UsageMetricsUnit.new
-            @@namespace_usage_metrics_map[pod_namespace] = namespace_usage_metrics
-          end
-
-          pod_containers = pod_json['spec']['containers']
-          pod_usage_metrics = UsageMetricsUnit.new
-          Array(pod_containers).each do |container_json|
-            container_usage_metrics = UsageMetricsUnit.new
-            cpu_limit = '0'
-            memory_limit = '0'
-            cpu_request = '0'
-            memory_request = '0'
-            unless container_json['resources']['limits'].nil?
-              unless container_json['resources']['limits']['cpu'].nil?
-                cpu_limit = container_json['resources']['limits']['cpu']
-              end
-              unless container_json['resources']['limits']['memory'].nil?
-                memory_limit = container_json['resources']['limits']['memory']
-              end
-            end
-            unless container_json['resources']['requests'].nil?
-              unless container_json['resources']['requests']['cpu'].nil?
-                cpu_request = container_json['resources']['requests']['cpu']
-              end
-              unless container_json['resources']['requests']['memory'].nil?
-                memory_request = container_json['resources']['requests']['memory']
-              end
+        @mutex_node_req_lim.synchronize do
+          Array(response['items']).each do |pod_json|
+            pod_namespace = pod_json['metadata']['namespace']
+            pod_node_name = pod_json['spec']['nodeName']
+            if @@namespace_usage_metrics_map[pod_namespace].nil?
+              namespace_usage_metrics = UsageMetricsUnit.new
+              @@namespace_usage_metrics_map[pod_namespace] = namespace_usage_metrics
             end
 
-            container_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
-            container_labels = { 'name' => container_json['name'], 'image' => container_json['image'] }
-            emit_limits_requests_metrics(generate_tag('container'), @scraped_at, container_labels, container_usage_metrics)
-            pod_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
-          end
-          pod_labels = { 'name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['name'], 'node' => pod_json['spec']['nodeName'] }
-          emit_limits_requests_metrics(generate_tag('pod'), @scraped_at, pod_labels, pod_usage_metrics)
-          @@namespace_usage_metrics_map[pod_namespace].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s.concat('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s.concat('m'),
-                                                                         pod_usage_metrics.instance_variable_get(:@memory_limit).to_s.concat('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s.concat('Mi'))
+            pod_containers = pod_json['spec']['containers']
+            pod_usage_metrics = UsageMetricsUnit.new
+            Array(pod_containers).each do |container_json|
+              container_usage_metrics = UsageMetricsUnit.new
+              cpu_limit = '0'
+              memory_limit = '0'
+              cpu_request = '0'
+              memory_request = '0'
+              unless container_json['resources']['limits'].nil?
+                unless container_json['resources']['limits']['cpu'].nil?
+                  cpu_limit = container_json['resources']['limits']['cpu']
+                end
+                unless container_json['resources']['limits']['memory'].nil?
+                  memory_limit = container_json['resources']['limits']['memory']
+                end
+              end
+              unless container_json['resources']['requests'].nil?
+                unless container_json['resources']['requests']['cpu'].nil?
+                  cpu_request = container_json['resources']['requests']['cpu']
+                end
+                unless container_json['resources']['requests']['memory'].nil?
+                  memory_request = container_json['resources']['requests']['memory']
+                end
+              end
+              container_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
+              container_labels = { 'name' => container_json['name'], 'image' => container_json['image'] }
+              emit_limits_requests_metrics(generate_tag('container'), @scraped_at, container_labels, container_usage_metrics)
+              pod_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
+            end
 
-          @mutex_node_req_lim.synchronize {
-            @@node_requests_limits_metrics_map = nil
-            @@node_requests_limits_metrics_map = {}
+            pod_labels = { 'name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['name'], 'node' => pod_json['spec']['nodeName'] }
+            emit_limits_requests_metrics(generate_tag('pod'), @scraped_at, pod_labels, pod_usage_metrics)
+            @@namespace_usage_metrics_map[pod_namespace].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s.concat('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s.concat('m'),
+                                                                           pod_usage_metrics.instance_variable_get(:@memory_limit).to_s.concat('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s.concat('Mi'))
+
             if @@node_requests_limits_metrics_map[pod_node_name].nil?
               node_name_usage_metrics = UsageMetricsUnit.new
               @@node_requests_limits_metrics_map[pod_node_name] = node_name_usage_metrics
             end
             @@node_requests_limits_metrics_map[pod_node_name].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s.concat('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s.concat('m'),
                                                                                 pod_usage_metrics.instance_variable_get(:@memory_limit).to_s.concat('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s.concat('Mi'))
-          }
-
-          pod_usage_metrics = nil
+            pod_usage_metrics = nil
+          end
         end
-
         cluster_usage_metrics = UsageMetricsUnit.new
         @@namespace_usage_metrics_map.each do |key, value|
           cluster_usage_metrics.add_usage_metrics(value.instance_variable_get(:@cpu_limit).to_s.concat('m'), value.instance_variable_get(:@cpu_request).to_s.concat('m'),
@@ -413,37 +456,44 @@ module Fluent
       def process_node_response(response)
         Array(response['items']).each do |node_json|
           node_name = node_json['metadata']['name']
-          node_cpu_capacity = get_cpu_or_memory_value(node_json['status']['capacity']['cpu'])
+          node_cpu_capacity = get_cpu_value(node_json['status']['capacity']['cpu'])
           router.emit generate_tag('node').concat('.cpu.capacity'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_capacity
-          node_cpu_allocatable = get_cpu_or_memory_value(node_json['status']['allocatable']['cpu'])
+          node_cpu_allocatable = get_cpu_value(node_json['status']['allocatable']['cpu'])
           router.emit generate_tag('node').concat('.cpu.allocatable'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_allocatable
-          node_memory_capacity = get_cpu_or_memory_value(node_json['status']['capacity']['memory'])
+          node_memory_capacity = get_memory_value(node_json['status']['capacity']['memory'])
           router.emit generate_tag('node').concat('.memory.capacity'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_capacity
-          node_memory_allocatable = get_cpu_or_memory_value(node_json['status']['allocatable']['memory'])
+          node_memory_allocatable = get_memory_value(node_json['status']['allocatable']['memory'])
           router.emit generate_tag('node').concat('.memory.allocatable'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_allocatable
-
-          # https://github.com/kubernetes/heapster/blob/c78cc312ab3901acfe5c2f95f7a621909c8455ad/metrics/processors/node_autoscaling_enricher.go#L62
 
           node_req_lim = UsageMetricsUnit.new
           node_res_usage = ResourceUsageMetricsUnit.new
-          @mutex_node_req_lim.synchronize {
-            next unless !@@node_resource_usage_metrics_map[node_name].nil?
-            node_req_lim = @@node_resource_usage_metrics_map[node_name]
-          }
-          @mutex_node_res_usage.synchronize {
-            next unless !@@node_requests_limits_metrics_map[node_name].nil?
-            node_res_usage = @@node_requests_limits_metrics_map[node_name]
-          }
+          @mutex_node_req_lim.synchronize do
+            next if @@node_requests_limits_metrics_map[node_name].nil?
 
-          node_cpu_utilization = node_res_usage.instance_variable_get(:@cpu_usage).to_i / node_cpu_allocatable.to_i
+            node_req_lim = @@node_requests_limits_metrics_map[node_name]
+          end
+          @mutex_node_res_usage.synchronize do
+            next if @@node_resource_usage_metrics_map[node_name].nil?
+
+            node_res_usage = @@node_resource_usage_metrics_map[node_name]
+          end
+          # https://github.com/kubernetes/heapster/blob/c78cc312ab3901acfe5c2f95f7a621909c8455ad/metrics/processors/node_autoscaling_enricher.go#L62
+          node_cpu_utilization = node_res_usage.instance_variable_get(:@cpu_usage).to_f / 1_000_000 * node_cpu_allocatable # converting from nano cores to milli core
           router.emit generate_tag('node').concat('.cpu.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_utilization
-          node_cpu_reservation = node_req_lim.instance_variable_get(:@cpu_request).to_i / node_cpu_allocatable.to_i
+          node_cpu_reservation = node_req_lim.instance_variable_get(:@cpu_request).to_f / node_cpu_allocatable
           router.emit generate_tag('node').concat('.cpu.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_reservation
-          node_memory_utilization = node_res_usage.instance_variable_get(:@memory_usage).to_i / node_memory_allocatable.to_i
+          node_memory_utilization = node_res_usage.instance_variable_get(:@memory_usage).to_f / 1_000_000 * node_memory_allocatable # converting from bytes to megabytes
           router.emit generate_tag('node').concat('.memory.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_utilization
-          node_memory_reservation = node_req_lim.instance_variable_get(:@memory_request).to_i / node_memory_allocatable.to_i
+          node_memory_reservation = node_req_lim.instance_variable_get(:@memory_request).to_f / node_memory_allocatable
           router.emit generate_tag('node').concat('.memory.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_reservation
-
+          @mutex_node_req_lim.synchronize do
+            @@node_requests_limits_metrics_map = nil
+            @@node_requests_limits_metrics_map = {}
+          end
+          @mutex_node_res_usage.synchronize do
+            @@node_resource_usage_metrics_map = nil
+            @@node_resource_usage_metrics_map = {}
+          end
         end
       end
 
@@ -478,49 +528,43 @@ module Fluent
 
       def process_resource_usage_res(response)
         @scraped_node_at = Time.now
-        Array(response['items']).each do |node_json|
-          node_name = node_json['metadata']['name']
-          node_rest_client =
-            begin
-              @client.discover unless @client.discovered
-              @client.rest_client["/nodes/#{node_name}:#{@kubelet_port}/proxy/stats/summary"].tap do |endpoint|
-                log.info("Use URL #{endpoint.url} for scraping resource usage metrics")
+        @mutex_node_res_usage.synchronize do
+          Array(response['items']).each do |node_json|
+            node_name = node_json['metadata']['name']
+            node_rest_client =
+              begin
+                @client.discover unless @client.discovered
+                @client.rest_client["/nodes/#{node_name}:#{@kubelet_port}/proxy/stats/summary"].tap do |endpoint|
+                  log.info("Use URL #{endpoint.url} for scraping resource usage metrics")
+                end
               end
-            end
 
-          node_response = JSON.parse(node_rest_client.get(@client.headers))
-
-          Array(node_response['pods']).each do |pod_json|
-            pod_cpu_usage = pod_json['cpu']['usageNanoCores']
-            pod_memory_usage = pod_json['memory']['usageBytes']
-            pod_namespace = pod_json['podRef']['namespace']
-            pod_usage = ResourceUsageMetricsUnit.new
-            pod_usage.add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
-            if @@namespace_resource_usage_metrics_map[pod_namespace].nil?
-              namespace_usage_metrics = ResourceUsageMetricsUnit.new
-              @@namespace_resource_usage_metrics_map[pod_namespace] = pod_usage
-            else
-              @@namespace_resource_usage_metrics_map[pod_namespace].add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
-            end
-
-            @mutex_node_res_usage.synchronize {
-              @@node_resource_usage_metrics_map = nil
-              @@node_resource_usage_metrics_map = {}
+            node_response = JSON.parse(node_rest_client.get(@client.headers))
+            Array(node_response['pods']).each do |pod_json|
+              pod_cpu_usage = pod_json['cpu']['usageNanoCores']
+              pod_memory_usage = pod_json['memory']['usageBytes']
+              pod_namespace = pod_json['podRef']['namespace']
+              pod_usage = ResourceUsageMetricsUnit.new
+              pod_usage.add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
+              if @@namespace_resource_usage_metrics_map[pod_namespace].nil?
+                namespace_usage_metrics = ResourceUsageMetricsUnit.new
+                @@namespace_resource_usage_metrics_map[pod_namespace] = pod_usage
+              else
+                @@namespace_resource_usage_metrics_map[pod_namespace].add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
+              end
               if @@node_resource_usage_metrics_map[node_name].nil?
                 node_name_usage_metrics = ResourceUsageMetricsUnit.new
                 @@node_resource_usage_metrics_map[node_name] = node_name_usage_metrics
               end
               @@node_resource_usage_metrics_map[node_name].add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
-            }
-
-            pod_usage = nil
+              pod_usage = nil
+            end
           end
         end
 
         cluster_usage_metrics = ResourceUsageMetricsUnit.new
         @@namespace_resource_usage_metrics_map.each do |key, value|
-          cluster_usage_metrics.add_resource_usage_metrics(value.instance_variable_get(:@cpu_usage),
-                                                           value.instance_variable_get(:@memory_usage))
+          cluster_usage_metrics.add_resource_usage_metrics(value.instance_variable_get(:@cpu_usage), value.instance_variable_get(:@memory_usage))
           emit_resource_usage_metrics(generate_tag('namespace'), @scraped_at, { 'name' => key }, value)
           value = nil
         end
