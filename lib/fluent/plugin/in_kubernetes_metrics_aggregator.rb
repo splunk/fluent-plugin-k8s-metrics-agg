@@ -138,7 +138,7 @@ module Fluent
       config_param :secret_dir, :string, default: '/var/run/secrets/kubernetes.io/serviceaccount'
 
       desc 'The port that kubelet is listening to.'
-      config_param :kubelet_port, :integer, default: 10_255
+      config_param :kubelet_port, :integer, default: 10_250
 
       desc 'The name of the cluster, where the plugin is deployed.'
       config_param :cluster_name, :string, default: 'cluster_name'
