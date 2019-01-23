@@ -390,7 +390,7 @@ module Fluent
                 end
               end
               container_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
-              container_labels = { 'name' => container_json['name'], 'image' => container_json['image'] }
+              container_labels = { 'name' => container_json['name'], 'image' => container_json['image'], 'node' => pod_json['spec']['nodeName'] }
               emit_limits_requests_metrics(generate_tag('container'), @scraped_at, container_labels, container_usage_metrics)
               pod_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
             end
