@@ -119,6 +119,9 @@ module Fluent
       desc 'Path to a kubeconfig file points to a cluster the plugin should collect metrics from. Mostly useful when running fluentd outside of the cluster. When `kubeconfig` is set, `kubernetes_url`, `client_cert`, `client_key`, `ca_file`, `insecure_ssl`, `bearer_token_file`, and `secret_dir` will all be ignored.'
       config_param :kubeconfig, :string, default: nil
 
+      desc 'URL of the kubernetes API server.'
+      config_param :kubernetes_url, :string, default: nil
+
       desc 'Path to the certificate file for this client.'
       config_param :client_cert, :string, default: nil
 
@@ -196,8 +199,10 @@ module Fluent
           env_host = ENV['KUBERNETES_SERVICE_HOST']
           env_port = ENV['KUBERNETES_SERVICE_PORT']
           if env_host && env_port
-            @kubernetes_url = "https://#{env_host}:#{env_port}/api/"
+            @kubernetes_url_final = "https://#{env_host}:#{env_port}/api/"
           end
+        else
+          @kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
         end
 
         raise Fluent::ConfigError, 'kubernetes url is not set' unless @kubernetes_url
@@ -227,7 +232,7 @@ module Fluent
         auth_options[:bearer_token] = File.read(@bearer_token_file) if @bearer_token_file
 
         @client = Kubeclient::Client.new(
-          @kubernetes_url, 'v1',
+          @kubernetes_url_final, 'v1',
           ssl_options: ssl_options,
           auth_options: auth_options
         )
@@ -235,7 +240,7 @@ module Fluent
         begin
           @client.api_valid?
         rescue KubeException => kube_error
-          raise Fluent::ConfigError, "Invalid Kubernetes API #{@api_version} endpoint #{@kubernetes_url}: #{kube_error.message}"
+          raise Fluent::ConfigError, "Invalid Kubernetes API #{@api_version} endpoint #{@kubernetes_url_final}: #{kube_error.message}"
         end
       end
 
