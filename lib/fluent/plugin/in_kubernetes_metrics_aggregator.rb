@@ -111,7 +111,10 @@ module Fluent
       helpers :timer
 
       desc 'kubernetes_url is the location of your kubernetes environment'
-      config_param :kubernetes_url, :string, default: 'http://localhost'
+      config_param :kubernetes_url, :string, default: 'https://localhost'
+
+      desc 'The port that kubelet is listening to.'
+      config_param :kubelet_port, :integer, default: 10_250
 
       desc 'The tag of the event.'
       config_param :tag, :string, default: 'kubernetes.metrics.*'
@@ -142,9 +145,6 @@ module Fluent
 
       desc "Path of the location where pod's service account's credentials are stored."
       config_param :secret_dir, :string, default: '/var/run/secrets/kubernetes.io/serviceaccount'
-
-      desc 'The port that kubelet is listening to.'
-      config_param :kubelet_port, :integer, default: 10_250
 
       desc 'The name of the cluster, where the plugin is deployed.'
       config_param :cluster_name, :string, default: 'cluster_name'
