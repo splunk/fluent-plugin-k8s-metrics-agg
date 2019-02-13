@@ -28,4 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'kubeclient', '~> 4.2.2'
   spec.add_runtime_dependency 'multi_json', '~> 1.13.1'
   spec.add_runtime_dependency 'oj', '~> 3.7.8'
+
 end
