@@ -19,6 +19,5 @@ WebMock.stub_request(:get, "https://localhost:10250/api").
             'Accept'=>'*/*',
             'Accept-Encoding'=>'gzip, deflate',
             'Host'=>'localhost:10250',
-            'User-Agent'=>'rest-client/2.0.2 (darwin17.7.0 x86_64) ruby/2.6.1p33'
         }).
     to_return(status: 200, body: api_response, headers: {})
