@@ -120,7 +120,7 @@ module Fluent
       config_param :tag, :string, default: 'kubernetes.metrics.*'
 
       desc 'How often it pulls metrics.'
-      config_param :interval, :time, default: '15s'
+      config_param :interval, :time, default: "15s"
 
       desc 'Path to a kubeconfig file points to a cluster the plugin should collect metrics from. Mostly useful when running fluentd outside of the cluster. When `kubeconfig` is set, `kubernetes_url`, `client_cert`, `client_key`, `ca_file`, `insecure_ssl`, `bearer_token_file`, and `secret_dir` will all be ignored.'
       config_param :kubeconfig, :string, default: nil
