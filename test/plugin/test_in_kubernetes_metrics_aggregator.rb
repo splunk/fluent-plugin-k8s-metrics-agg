@@ -36,10 +36,10 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
     @driver = create_driver
     @driver.run timeout: 20, expect_emits: 1, shutdown: true
 
-    @driver.events.each do |tag, time, record|
-      @hash_map_test[tag] = tag, time, record
-    end
+    #@driver.events.each do |tag, time, record|
+    #  @hash_map_test[tag] = tag, time, record
   end
+
 
   def create_driver(conf = BASIC_CONFIG)
     Fluent::Test::Driver::Input
@@ -86,5 +86,4 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
     end
   end
 
-  # TODO: ADD Certificate and Bearer token tests.
 end
