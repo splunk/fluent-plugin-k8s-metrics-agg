@@ -200,9 +200,9 @@ module Fluent
           env_port = ENV['KUBERNETES_SERVICE_PORT']
           if env_host && env_port
             @kubernetes_url_final = "https://#{env_host}:#{env_port}/api/"
+          else
+            @kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
           end
-        else
-          @kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
         end
 
         raise Fluent::ConfigError, 'kubernetes url is not set' unless @kubernetes_url
