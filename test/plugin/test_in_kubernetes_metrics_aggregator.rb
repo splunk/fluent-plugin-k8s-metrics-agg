@@ -6,8 +6,13 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
   include PluginTestHelper
 
   @driver = nil
-  @hash_map_test = {}
+  @driver_test = nil
+  @@hash_map_test = {}
+  @hash_map_pods_test = {}
   @hash_map_cadvisor = {}
+  @node_1_test = {}
+  @node_2_test = {}
+  @node_3_test = {}
 
   ZERO_CONFIG = %([]).freeze
 
@@ -30,21 +35,36 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
       kubelet_port 10255
   ]).freeze
 
+  METRIC_TEST_CONFIG = %([
+      kubernetes_url https://node.fakedestination.com
+      kubelet_port 10255
+      tag kube.*
+  ]).freeze
+
   setup do
     Fluent::Test.setup
     stub_k8s_requests
-    @driver = create_driver
-    @driver.run timeout: 20, expect_emits: 1, shutdown: true
+    @driver = create_driver(METRIC_TEST_CONFIG)
+    @driver.run timeout: 20, expect_emits: 200, shutdown: false
 
-    #@driver.events.each do |tag, time, record|
-    #  @hash_map_test[tag] = tag, time, record
+
+    @driver.events.each do |tag, time, record|
+      @@hash_map_test[tag] = tag, time, record
+    end
+
   end
 
+  def populate_hash_map_pods
+    @node_1_test = JSON.parse(get_parsed_file('node1.json'))
+    @node_2_test = JSON.parse(get_parsed_file('node2.json'))
+    @node_3_test = JSON.parse(get_parsed_file('node3.json'))
+  end
 
   def create_driver(conf = BASIC_CONFIG)
-    Fluent::Test::Driver::Input
-      .new(Fluent::Plugin::KubernetesMetricsAggregatorInput)
-      .configure(conf)
+    d = Fluent::Test::Driver::Input.new(Fluent::Plugin::KubernetesMetricsAggregatorInput)
+    with_worker_config(workers: 3, worker_id: 1) do
+        d.configure(conf)
+    end
   end
 
   sub_test_case 'default parameter configuration' do
@@ -68,7 +88,12 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
 
   sub_test_case 'modify parameter changes' do
     test 'test kubelet_port and supplied kubernetes URL parameters' do
-      d = create_driver(BASIC_CONFIG)
+      @driver_test = create_driver(METRIC_TEST_CONFIG)
+      @driver_test.run timeout: 20, expect_emits: 10, shutdown: false
+
+      @driver_test.events.each do |tag, time, record|
+        @@hash_map_test[tag] = tag, time, record
+      end
       assert_equal 'https://node.fakedestination.com', d.instance.kubernetes_url
       assert_equal 10_255, d.instance.kubelet_port
     end
@@ -84,6 +109,122 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
       assert_true d.instance.insecure_ssl
       assert_equal 'awesome_cluster', d.instance.cluster_name
     end
+  end
+
+  sub_test_case 'Metric Agg Testing - Testing presence of metrics' do
+
+    test 'Testing kube.cluster.memory.request	' do
+      assert_true @@hash_map_test.has_key?('kube.cluster.memory.request')
+    end
+
+    test 'Testing kube.container.memory.request' do
+      assert_true @@hash_map_test.has_key?('kube.container.memory.request')
+    end
+
+    test 'Testing kube.pod.memory.request' do
+      assert_true @@hash_map_test.has_key?('kube.pod.memory.request')
+    end
+
+    test 'Testing kube.namespace.memory.request	' do
+      assert_true @@hash_map_test.has_key?('kube.namespace.memory.request')
+    end
+
+    test 'Testing kube.node.cpu.capacity' do
+      assert_true @@hash_map_test.has_key?('kube.node.cpu.capacity')
+    end
+
+    test 'Testing kube.node.memory.capacity	' do
+      assert_true @@hash_map_test.has_key?('kube.node.memory.capacity')
+    end
+
+    test 'Testing kube.node.memory.allocatable' do
+      assert_true @@hash_map_test.has_key?('kube.node.memory.allocatable')
+    end
+
+    test 'Testing kube.node.cpu.utilization	' do
+      assert_true @@hash_map_test.has_key?('kube.node.cpu.utilization')
+    end
+
+    test 'Testing kube.node.memory.reservation' do
+      assert_true @@hash_map_test.has_key?('kube.node.memory.reservation')
+    end
+
+    test 'Testing kube.node.memory.utilization' do
+      assert_true @@hash_map_test.has_key?('kube.node.memory.utilization')
+    end
+
+    test 'Testing kube.namespace.memory.usage	' do
+      assert_true @@hash_map_test.has_key?('kube.namespace.memory.usage')
+    end
+
+    test 'Testing kube.cluster.memory.usage' do
+      assert_true @@hash_map_test.has_key?('kube.cluster.memory.usage')
+    end
+
+    test 'Testing kube.cluster.memory.limit	' do
+      assert_true @@hash_map_test.has_key?('kube.cluster.memory.limit')
+    end
+
+    test 'Testing kube.container.cpu.request' do
+      assert_true @@hash_map_test.has_key?('kube.container.cpu.request')
+    end
+
+    test 'Testing kube.container.memory.limit' do
+      assert_true @@hash_map_test.has_key?('kube.container.memory.limit')
+    end
+
+    test 'Testing kube.namespace.cpu.limit' do
+      assert_true @@hash_map_test.has_key?('kube.namespace.cpu.limit')
+    end
+
+    test 'Testing kube.namespace.cpu.request' do
+      assert_true @@hash_map_test.has_key?('kube.namespace.cpu.request')
+    end
+
+    test 'Testing kube.namespace.cpu.usage' do
+      assert_true @@hash_map_test.has_key?('kube.namespace.cpu.usage')
+    end
+
+    test 'Testing kube.namespace.memory.limit	' do
+      assert_true @@hash_map_test.has_key?('kube.namespace.memory.limit')
+    end
+
+    test 'Testing kube.node.cpu.allocatable	' do
+      assert_true @@hash_map_test.has_key?('kube.node.cpu.allocatable')
+    end
+
+    test 'Testing kube.node.cpu.reservation	' do
+      assert_true @@hash_map_test.has_key?('kube.node.cpu.reservation')
+    end
+
+    test 'Testing kube.pod.memory.limit	' do
+      assert_true @@hash_map_test.has_key?('kube.pod.memory.limit')
+    end
+
+    test 'Testing kube.cluster.cpu.limit' do
+      assert_true @@hash_map_test.has_key?('kube.cluster.cpu.limit')
+    end
+
+    test 'Testing kube.cluster.cpu.request' do
+      assert_true @@hash_map_test.has_key?('kube.cluster.cpu.request')
+    end
+
+    test 'Testing kube.cluster.cpu.usage' do
+      assert_true @@hash_map_test.has_key?('kube.cluster.cpu.usage')
+    end
+
+    test 'Testing kube.container.cpu.limit' do
+      assert_true @@hash_map_test.has_key?('kube.container.cpu.limit')
+    end
+
+    test 'Testing kube.pod.cpu.limit' do
+      assert_true @@hash_map_test.has_key?('kube.pod.cpu.limit')
+    end
+
+    test 'Testing kube.pod.cpu.request' do
+      assert_true @@hash_map_test.has_key?('kube.pod.cpu.request')
+    end
+
   end
 
 end

@@ -92,6 +92,9 @@ module Fluent
                         end
           memory_mult
         end
+        def to_s
+          "cpu_limit:" + @cpu_limit + " cpu_request: " + @cpu_request + " memory_limit: " + @memory_limit + " memory_request: " + @memory_request
+        end
       end
 
       class ResourceUsageMetricsUnit
@@ -151,10 +154,10 @@ module Fluent
 
       def configure(conf)
         super
-        parse_tag
-        initialize_client
         @mutex_node_req_lim = Mutex.new
         @mutex_node_res_usage = Mutex.new
+        parse_tag
+        initialize_client
       end
 
       def start
@@ -163,9 +166,12 @@ module Fluent
         timer_execute :limits_request_scraper, @interval, &method(:scrape_limits_requests_metrics)
         timer_execute :node_scraper, @interval, &method(:scrape_node_metrics)
         timer_execute :resource_usage_scraper, @interval, &method(:scrape_resource_usage_metrics)
+
       end
 
       def close
+        @watchers.each &:finish if @watchers
+
         super
       end
 
@@ -320,7 +326,7 @@ module Fluent
       end
 
       def emit_limits_requests_metrics(tag, scraped_at, labels, limits_requests_metric)
-        router.emit tag.concat('.cpu.limit'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@cpu_limit))
+         router.emit tag.concat('.cpu.limit'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@cpu_limit))
         labels['value'] = limits_requests_metric.instance_variable_get(:@cpu_request)
         router.emit tag.gsub!('.cpu.limit', '.cpu.request'), Fluent::EventTime.from_time(scraped_at), labels
         labels['value'] = limits_requests_metric.instance_variable_get(:@memory_limit)
@@ -350,7 +356,7 @@ module Fluent
         handle_limits_requests_res(response)
       end
 
-      # This method is used to handle responses from the kubeapiserver api
+      # This method is used to handle responses from the kube apiserver api
       def handle_limits_requests_res(response)
         # Checking response codes only for a successful GET request viz., 2XX codes
         if (response.code < 300) && (response.code > 199)

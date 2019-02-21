@@ -181,14 +181,23 @@ module PluginTestHelper
     stub_api_pods
     stub_api_nodes
     stub_api_node_1
-    stub_api_node_2
     stub_api_node_3
-    stub_k8s_v1
-    stub_k8s_api
-    stub_k8s_api_pods
-    stub_k8s_api_nodes
-    stub_kubelet_summary_api_node1
-    stub_kubelet_summary_api_node2
-    stub_kubelet_summary_api_node3
+    stub_api_node_2
+    #stub_k8s_v1
+    #stub_k8s_api
+    #stub_k8s_api_pods
+    #stub_k8s_api_nodes
+    #stub_kubelet_summary_api_node1
+    #stub_kubelet_summary_api_node2
+    #stub_kubelet_summary_api_node3
   end
+
+  def get_parsed_file(file_name)
+    parsed_string = nil
+    open(File.expand_path('../' + file_name.to_s , __FILE__)).tap { |f|
+      parsed_string = f.read()
+    }.close
+    parsed_string
+  end
+
 end
