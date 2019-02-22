@@ -92,9 +92,6 @@ module Fluent
                         end
           memory_mult
         end
-        def to_s
-          "cpu_limit:" + @cpu_limit + " cpu_request: " + @cpu_request + " memory_limit: " + @memory_limit + " memory_request: " + @memory_request
-        end
       end
 
       class ResourceUsageMetricsUnit
@@ -325,20 +322,36 @@ module Fluent
         mem_val
       end
 
-      def emit_limits_requests_metrics(tag, scraped_at, labels, limits_requests_metric)
-         router.emit tag.concat('.cpu.limit'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@cpu_limit))
-        labels['value'] = limits_requests_metric.instance_variable_get(:@cpu_request)
-        router.emit tag.gsub!('.cpu.limit', '.cpu.request'), Fluent::EventTime.from_time(scraped_at), labels
-        labels['value'] = limits_requests_metric.instance_variable_get(:@memory_limit)
-        router.emit tag.gsub!('.cpu.request', '.memory.limit'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_limit))
-        labels['value'] = limits_requests_metric.instance_variable_get(:@memory_request)
-        router.emit tag.gsub!('.memory.limit', '.memory.request'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_request))
+      def emit_limits_requests_metrics(tag,
+                                       scraped_at,
+                                       labels,
+                                       limits_requests_metric)
+        router.emit tag + '.cpu.limit',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge(
+                      'value' => limits_requests_metric.instance_variable_get(:@cpu_limit)
+                    )
+        router.emit tag + '.cpu.request',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => limits_requests_metric.instance_variable_get(:@cpu_request))
+        router.emit tag + '.memory.limit',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_limit))
+        router.emit tag + '.memory.request',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_request))
       end
 
-      def emit_resource_usage_metrics(tag, scraped_at, labels, resource_usage_metric)
-        router.emit tag.concat('.cpu.usage'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => resource_usage_metric.instance_variable_get(:@cpu_usage))
-        labels['value'] = resource_usage_metric.instance_variable_get(:@memory_usage)
-        router.emit tag.gsub!('.cpu.usage', '.memory.usage'), Fluent::EventTime.from_time(scraped_at), labels
+      def emit_resource_usage_metrics(tag,
+                                      scraped_at,
+                                      labels,
+                                      resource_usage_metric)
+        router.emit tag + '.cpu.usage',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => resource_usage_metric.instance_variable_get(:@cpu_usage))
+        router.emit tag + '.memory.usage',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => resource_usage_metric.instance_variable_get(:@memory_usage))
       end
 
       def limits_requests_api

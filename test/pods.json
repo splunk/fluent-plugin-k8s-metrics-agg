@@ -89,12 +89,12 @@
             ],
             "resources": {
               "limits": {
-                "cpu": "200m",
-                "memory": "300Mi"
+                "cpu": "1m",
+                "memory": "2Mi"
               },
               "requests": {
-                "cpu": "200m",
-                "memory": "300Mi"
+                "cpu": "3m",
+                "memory": "4Mi"
               }
             },
             "volumeMounts": [
@@ -267,12 +267,12 @@
             ],
             "resources": {
               "limits": {
-                "cpu": "200m",
-                "memory": "300Mi"
+                "cpu": "100m",
+                "memory": "200Mi"
               },
               "requests": {
-                "cpu": "200m",
-                "memory": "300Mi"
+                "cpu": "300m",
+                "memory": "400Mi"
               }
             },
             "volumeMounts": [
@@ -452,12 +452,12 @@
             ],
             "resources": {
               "limits": {
-                "cpu": "200m",
-                "memory": "300Mi"
+                "cpu": "500m",
+                "memory": "600Mi"
               },
               "requests": {
-                "cpu": "200m",
-                "memory": "300Mi"
+                "cpu": "700m",
+                "memory": "800Mi"
               }
             },
             "volumeMounts": [
@@ -614,8 +614,8 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "50m",
-                "memory": "50Mi"
+                "cpu": "900m",
+                "memory": "1000Mi"
               }
             },
             "volumeMounts": [
@@ -815,7 +815,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "100m"
+                "cpu": "1100m"
               }
             },
             "volumeMounts": [
@@ -1023,7 +1023,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "200m"
+                "cpu": "1200m"
               }
             },
             "volumeMounts": [
@@ -1257,7 +1257,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "150m"
+                "cpu": "1300m"
               }
             },
             "volumeMounts": [
@@ -1522,7 +1522,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "100m"
+                "cpu": "1400m"
               }
             },
             "volumeMounts": [
@@ -1753,11 +1753,11 @@
             ],
             "resources": {
               "limits": {
-                "memory": "170Mi"
+                "memory": "1500Mi"
               },
               "requests": {
-                "cpu": "100m",
-                "memory": "70Mi"
+                "cpu": "1600m",
+                "memory": "170Mi"
               }
             },
             "volumeMounts": [
@@ -1831,8 +1831,8 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "150m",
-                "memory": "20Mi"
+                "cpu": "1800m",
+                "memory": "19000Mi"
               }
             },
             "volumeMounts": [
@@ -1880,8 +1880,8 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "10m",
-                "memory": "20Mi"
+                "cpu": "2000m",
+                "memory": "210Mi"
               }
             },
             "volumeMounts": [
@@ -2094,11 +2094,11 @@
             ],
             "resources": {
               "limits": {
-                "memory": "170Mi"
+                "memory": "2200Mi"
               },
               "requests": {
-                "cpu": "100m",
-                "memory": "70Mi"
+                "cpu": "2300m",
+                "memory": "2400Mi"
               }
             },
             "volumeMounts": [
@@ -2172,8 +2172,8 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "150m",
-                "memory": "20Mi"
+                "cpu": "250m",
+                "memory": "26Mi"
               }
             },
             "volumeMounts": [
@@ -2221,8 +2221,8 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "10m",
-                "memory": "20Mi"
+                "cpu": "270m",
+                "memory": "28Mi"
               }
             },
             "volumeMounts": [
@@ -2405,8 +2405,8 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "20m",
-                "memory": "10Mi"
+                "cpu": "29m",
+                "memory": "30Mi"
               }
             },
             "volumeMounts": [
@@ -2572,7 +2572,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "100m"
+                "cpu": "3100m"
               }
             },
             "volumeMounts": [
@@ -2755,7 +2755,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "100m"
+                "cpu": "3200m"
               }
             },
             "volumeMounts": [
@@ -2938,7 +2938,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "100m"
+                "cpu": "3300m"
               }
             },
             "volumeMounts": [
@@ -3092,7 +3092,7 @@
             ],
             "resources": {
               "requests": {
-                "cpu": "100m"
+                "cpu": "3400m"
               }
             },
             "volumeMounts": [
