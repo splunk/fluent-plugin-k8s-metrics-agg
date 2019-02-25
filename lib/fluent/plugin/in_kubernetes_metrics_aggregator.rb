@@ -110,8 +110,8 @@ module Fluent
 
       helpers :timer
 
-      desc 'kubernetes_url is the location of your kubernetes environment'
-      config_param :kubernetes_url, :string, default: 'https://localhost'
+      desc 'URL of the kubernetes API server.'
+      config_param :kubernetes_url, :string, default: nil
 
       desc 'The port that kubelet is listening to.'
       config_param :kubelet_port, :integer, default: 10_250
@@ -124,9 +124,6 @@ module Fluent
 
       desc 'Path to a kubeconfig file points to a cluster the plugin should collect metrics from. Mostly useful when running fluentd outside of the cluster. When `kubeconfig` is set, `kubernetes_url`, `client_cert`, `client_key`, `ca_file`, `insecure_ssl`, `bearer_token_file`, and `secret_dir` will all be ignored.'
       config_param :kubeconfig, :string, default: nil
-
-      desc 'URL of the kubernetes API server.'
-      config_param :kubernetes_url, :string, default: nil
 
       desc 'Path to the certificate file for this client.'
       config_param :client_cert, :string, default: nil

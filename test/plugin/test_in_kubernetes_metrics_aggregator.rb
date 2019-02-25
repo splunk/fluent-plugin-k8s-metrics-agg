@@ -58,7 +58,7 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
   sub_test_case 'default parameter configuration' do
     test 'test default params' do
       d = create_driver(ZERO_CONFIG)
-      assert_equal 'https://localhost', d.instance.kubernetes_url
+      assert_nil d.instance.kubernetes_url
       assert_equal 10_250, d.instance.kubelet_port
       assert_equal 'kubernetes.metrics.*', d.instance.tag
       assert_equal '15s', d.instance.interval

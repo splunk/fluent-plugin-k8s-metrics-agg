@@ -5,7 +5,7 @@ Gem::Specification.new do |spec|
   spec.name    = 'fluent-plugin-k8s-metrics-agg'
   spec.version = '1.0.1'
 
-  spec.authors = ["Splunk Inc."]
+  spec.authors = ['Splunk Inc.']
   spec.summary       = %q{A fluentd input plugin that collects kubernetes cluster metrics.}
   spec.description   = %q{A fluentd input plugin that collects node and container metrics from a kubernetes cluster via kubeapiserver API.}
   spec.homepage      = "https://github.com/splunk/fluent-plugin-k8s-metrics-agg"
