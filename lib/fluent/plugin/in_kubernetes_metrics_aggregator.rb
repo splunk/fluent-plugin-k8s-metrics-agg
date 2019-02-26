@@ -196,19 +196,20 @@ module Fluent
       end
 
       def init_without_kubeconfig(_options = {})
+        kubernetes_url_final = nil
         # mostly borrowed from Fluentd Kubernetes Metadata Filter Plugin
         if @kubernetes_url.nil?
           # Use Kubernetes default service account if we're in a pod.
           env_host = ENV['KUBERNETES_SERVICE_HOST']
           env_port = ENV['KUBERNETES_SERVICE_PORT']
           if env_host && env_port
-            @kubernetes_url_final = "https://#{env_host}:#{env_port}/api/"
+            kubernetes_url_final = "https://#{env_host}:#{env_port}/api/"
           end
         else
-            @kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
+          kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
         end
 
-        raise Fluent::ConfigError, 'kubernetes url is not set' unless @kubernetes_url_final
+        raise Fluent::ConfigError, 'kubernetes url is not set' unless kubernetes_url_final
 
         # Use SSL certificate and bearer token from Kubernetes service account.
         if Dir.exist?(@secret_dir)
@@ -234,10 +235,10 @@ module Fluent
         auth_options = {}
         auth_options[:bearer_token] = File.read(@bearer_token_file) if @bearer_token_file
 
-        @constructed_kubernetes_url = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
+        kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
 
         @client = Kubeclient::Client.new(
-            @constructed_kubernetes_url, 'v1',
+            kubernetes_url_final, 'v1',
           ssl_options: ssl_options,
           auth_options: auth_options
         )
@@ -245,7 +246,7 @@ module Fluent
         begin
           @client.api_valid?
         rescue KubeException => kube_error
-          raise Fluent::ConfigError, "Invalid Kubernetes API #{@api_version} endpoint #{@kubernetes_url_final}: #{kube_error.message}"
+          raise Fluent::ConfigError, "Invalid Kubernetes API #{@api_version} endpoint #{kubernetes_url_final}: #{kube_error.message}"
         end
       end
 

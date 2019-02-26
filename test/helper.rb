@@ -38,12 +38,12 @@ module PluginTestHelper
   end
 
   def stub_api_port_10250
-    WebMock.stub_request(:get, 'https://localhost:10250/api')
+    WebMock.stub_request(:get, 'https://node.fakedestination.com:10250/api')
            .with(
              headers: {
                'Accept' => '*/*',
                'Accept-Encoding' => 'gzip, deflate',
-               'Host' => 'localhost:10250'
+               'Host' => 'node.fakedestination.com:10250'
              }
            )
            .to_return(status: 200,
