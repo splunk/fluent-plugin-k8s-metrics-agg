@@ -110,17 +110,20 @@ module Fluent
 
       helpers :timer
 
+      desc 'URL of the kubernetes API server.'
+      config_param :kubernetes_url, :string, default: nil
+
+      desc 'The port that kubelet is listening to.'
+      config_param :kubelet_port, :integer, default: 10_250
+
       desc 'The tag of the event.'
       config_param :tag, :string, default: 'kubernetes.metrics.*'
 
       desc 'How often it pulls metrics.'
-      config_param :interval, :time, default: '15s'
+      config_param :interval, :time, default: "15s"
 
       desc 'Path to a kubeconfig file points to a cluster the plugin should collect metrics from. Mostly useful when running fluentd outside of the cluster. When `kubeconfig` is set, `kubernetes_url`, `client_cert`, `client_key`, `ca_file`, `insecure_ssl`, `bearer_token_file`, and `secret_dir` will all be ignored.'
       config_param :kubeconfig, :string, default: nil
-
-      desc 'URL of the kubernetes API server.'
-      config_param :kubernetes_url, :string, default: nil
 
       desc 'Path to the certificate file for this client.'
       config_param :client_cert, :string, default: nil
@@ -140,18 +143,15 @@ module Fluent
       desc "Path of the location where pod's service account's credentials are stored."
       config_param :secret_dir, :string, default: '/var/run/secrets/kubernetes.io/serviceaccount'
 
-      desc 'The port that kubelet is listening to.'
-      config_param :kubelet_port, :integer, default: 10_250
-
       desc 'The name of the cluster, where the plugin is deployed.'
       config_param :cluster_name, :string, default: 'cluster_name'
 
       def configure(conf)
         super
-        parse_tag
-        initialize_client
         @mutex_node_req_lim = Mutex.new
         @mutex_node_res_usage = Mutex.new
+        parse_tag
+        initialize_client
       end
 
       def start
@@ -160,9 +160,12 @@ module Fluent
         timer_execute :limits_request_scraper, @interval, &method(:scrape_limits_requests_metrics)
         timer_execute :node_scraper, @interval, &method(:scrape_node_metrics)
         timer_execute :resource_usage_scraper, @interval, &method(:scrape_resource_usage_metrics)
+
       end
 
       def close
+        @watchers.each &:finish if @watchers
+
         super
       end
 
@@ -193,19 +196,20 @@ module Fluent
       end
 
       def init_without_kubeconfig(_options = {})
+        kubernetes_url_final = nil
         # mostly borrowed from Fluentd Kubernetes Metadata Filter Plugin
         if @kubernetes_url.nil?
           # Use Kubernetes default service account if we're in a pod.
           env_host = ENV['KUBERNETES_SERVICE_HOST']
           env_port = ENV['KUBERNETES_SERVICE_PORT']
           if env_host && env_port
-            @kubernetes_url_final = "https://#{env_host}:#{env_port}/api/"
+            kubernetes_url_final = "https://#{env_host}:#{env_port}/api/"
           end
         else
-            @kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
+          kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
         end
 
-        raise Fluent::ConfigError, 'kubernetes url is not set' unless @kubernetes_url_final
+        raise Fluent::ConfigError, 'kubernetes url is not set' unless kubernetes_url_final
 
         # Use SSL certificate and bearer token from Kubernetes service account.
         if Dir.exist?(@secret_dir)
@@ -231,8 +235,10 @@ module Fluent
         auth_options = {}
         auth_options[:bearer_token] = File.read(@bearer_token_file) if @bearer_token_file
 
+        kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
+
         @client = Kubeclient::Client.new(
-          @kubernetes_url_final, 'v1',
+            kubernetes_url_final, 'v1',
           ssl_options: ssl_options,
           auth_options: auth_options
         )
@@ -240,7 +246,7 @@ module Fluent
         begin
           @client.api_valid?
         rescue KubeException => kube_error
-          raise Fluent::ConfigError, "Invalid Kubernetes API #{@api_version} endpoint #{@kubernetes_url_final}: #{kube_error.message}"
+          raise Fluent::ConfigError, "Invalid Kubernetes API #{@api_version} endpoint #{kubernetes_url_final}: #{kube_error.message}"
         end
       end
 
@@ -314,20 +320,36 @@ module Fluent
         mem_val
       end
 
-      def emit_limits_requests_metrics(tag, scraped_at, labels, limits_requests_metric)
-        router.emit tag.concat('.cpu.limit'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@cpu_limit))
-        labels['value'] = limits_requests_metric.instance_variable_get(:@cpu_request)
-        router.emit tag.gsub!('.cpu.limit', '.cpu.request'), Fluent::EventTime.from_time(scraped_at), labels
-        labels['value'] = limits_requests_metric.instance_variable_get(:@memory_limit)
-        router.emit tag.gsub!('.cpu.request', '.memory.limit'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_limit))
-        labels['value'] = limits_requests_metric.instance_variable_get(:@memory_request)
-        router.emit tag.gsub!('.memory.limit', '.memory.request'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_request))
+      def emit_limits_requests_metrics(tag,
+                                       scraped_at,
+                                       labels,
+                                       limits_requests_metric)
+        router.emit tag + '.cpu.limit',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge(
+                      'value' => limits_requests_metric.instance_variable_get(:@cpu_limit)
+                    )
+        router.emit tag + '.cpu.request',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => limits_requests_metric.instance_variable_get(:@cpu_request))
+        router.emit tag + '.memory.limit',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_limit))
+        router.emit tag + '.memory.request',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => limits_requests_metric.instance_variable_get(:@memory_request))
       end
 
-      def emit_resource_usage_metrics(tag, scraped_at, labels, resource_usage_metric)
-        router.emit tag.concat('.cpu.usage'), Fluent::EventTime.from_time(scraped_at), labels.merge('value' => resource_usage_metric.instance_variable_get(:@cpu_usage))
-        labels['value'] = resource_usage_metric.instance_variable_get(:@memory_usage)
-        router.emit tag.gsub!('.cpu.usage', '.memory.usage'), Fluent::EventTime.from_time(scraped_at), labels
+      def emit_resource_usage_metrics(tag,
+                                      scraped_at,
+                                      labels,
+                                      resource_usage_metric)
+        router.emit tag + '.cpu.usage',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => resource_usage_metric.instance_variable_get(:@cpu_usage))
+        router.emit tag + '.memory.usage',
+                    Fluent::EventTime.from_time(scraped_at),
+                    labels.merge('value' => resource_usage_metric.instance_variable_get(:@memory_usage))
       end
 
       def limits_requests_api
@@ -345,7 +367,7 @@ module Fluent
         handle_limits_requests_res(response)
       end
 
-      # This method is used to handle responses from the kubeapiserver api
+      # This method is used to handle responses from the kube apiserver api
       def handle_limits_requests_res(response)
         # Checking response codes only for a successful GET request viz., 2XX codes
         if (response.code < 300) && (response.code > 199)
@@ -402,22 +424,22 @@ module Fluent
 
             pod_labels = { 'name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['name'], 'node' => pod_json['spec']['nodeName'] }
             emit_limits_requests_metrics(generate_tag('pod'), @scraped_at, pod_labels, pod_usage_metrics)
-            @@namespace_usage_metrics_map[pod_namespace].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s.concat('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s.concat('m'),
-                                                                           pod_usage_metrics.instance_variable_get(:@memory_limit).to_s.concat('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s.concat('Mi'))
+            @@namespace_usage_metrics_map[pod_namespace].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s + ('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s + ('m'),
+                                                                           pod_usage_metrics.instance_variable_get(:@memory_limit).to_s + ('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s + ('Mi'))
 
             if @@node_requests_limits_metrics_map[pod_node_name].nil?
               node_name_usage_metrics = UsageMetricsUnit.new
               @@node_requests_limits_metrics_map[pod_node_name] = node_name_usage_metrics
             end
-            @@node_requests_limits_metrics_map[pod_node_name].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s.concat('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s.concat('m'),
-                                                                                pod_usage_metrics.instance_variable_get(:@memory_limit).to_s.concat('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s.concat('Mi'))
+            @@node_requests_limits_metrics_map[pod_node_name].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s + ('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s + ('m'),
+                                                                                pod_usage_metrics.instance_variable_get(:@memory_limit).to_s + ('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s + ('Mi'))
             pod_usage_metrics = nil
           end
         end
         cluster_usage_metrics = UsageMetricsUnit.new
         @@namespace_usage_metrics_map.each do |key, value|
-          cluster_usage_metrics.add_usage_metrics(value.instance_variable_get(:@cpu_limit).to_s.concat('m'), value.instance_variable_get(:@cpu_request).to_s.concat('m'),
-                                                  value.instance_variable_get(:@memory_limit).to_s.concat('Mi'), value.instance_variable_get(:@memory_request).to_s.concat('Mi'))
+          cluster_usage_metrics.add_usage_metrics(value.instance_variable_get(:@cpu_limit).to_s + ('m'), value.instance_variable_get(:@cpu_request).to_s + ('m'),
+                                                  value.instance_variable_get(:@memory_limit).to_s + ('Mi'), value.instance_variable_get(:@memory_request).to_s + ('Mi'))
           emit_limits_requests_metrics(generate_tag('namespace'), @scraped_at, { 'name' => key }, value)
           value = nil
         end
@@ -462,13 +484,13 @@ module Fluent
         Array(response['items']).each do |node_json|
           node_name = node_json['metadata']['name']
           node_cpu_capacity = get_cpu_value(node_json['status']['capacity']['cpu'])
-          router.emit generate_tag('node').concat('.cpu.capacity'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_capacity
+          router.emit generate_tag('node') << ('.cpu.capacity'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_capacity
           node_cpu_allocatable = get_cpu_value(node_json['status']['allocatable']['cpu'])
-          router.emit generate_tag('node').concat('.cpu.allocatable'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_allocatable
+          router.emit generate_tag('node') << ('.cpu.allocatable'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_allocatable
           node_memory_capacity = get_memory_value(node_json['status']['capacity']['memory'])
-          router.emit generate_tag('node').concat('.memory.capacity'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_capacity
+          router.emit generate_tag('node') << ('.memory.capacity'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_capacity
           node_memory_allocatable = get_memory_value(node_json['status']['allocatable']['memory'])
-          router.emit generate_tag('node').concat('.memory.allocatable'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_allocatable
+          router.emit generate_tag('node') << ('.memory.allocatable'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_allocatable
 
           node_req_lim = UsageMetricsUnit.new
           node_res_usage = ResourceUsageMetricsUnit.new
@@ -484,13 +506,13 @@ module Fluent
           end
           # https://github.com/kubernetes/heapster/blob/c78cc312ab3901acfe5c2f95f7a621909c8455ad/metrics/processors/node_autoscaling_enricher.go#L62
           node_cpu_utilization = node_res_usage.instance_variable_get(:@cpu_usage).to_f / 1_000_000 * node_cpu_allocatable # converting from nano cores to milli core
-          router.emit generate_tag('node').concat('.cpu.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_utilization
+          router.emit generate_tag('node') << ('.cpu.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_utilization
           node_cpu_reservation = node_req_lim.instance_variable_get(:@cpu_request).to_f / node_cpu_allocatable
-          router.emit generate_tag('node').concat('.cpu.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_reservation
+          router.emit generate_tag('node') << ('.cpu.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_reservation
           node_memory_utilization = node_res_usage.instance_variable_get(:@memory_usage).to_f / 1_000_000 * node_memory_allocatable # converting from bytes to megabytes
-          router.emit generate_tag('node').concat('.memory.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_utilization
+          router.emit generate_tag('node') << ('.memory.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_utilization
           node_memory_reservation = node_req_lim.instance_variable_get(:@memory_request).to_f / node_memory_allocatable
-          router.emit generate_tag('node').concat('.memory.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_reservation
+          router.emit generate_tag('node') << ('.memory.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_reservation
           @mutex_node_req_lim.synchronize do
             @@node_requests_limits_metrics_map = nil
             @@node_requests_limits_metrics_map = {}

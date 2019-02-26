@@ -1,0 +1,814 @@
+{
+  "kind": "NodeList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/nodes",
+    "resourceVersion": "3046286"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "generics-aws-node-one",
+        "selfLink": "/api/v1/nodes/generics-aws-node-one",
+        "uid": "5981cfc6-dedb-11e8-afef-02dd29648076",
+        "resourceVersion": "3046280",
+        "creationTimestamp": "2018-11-02T20:10:31Z",
+        "labels": {
+          "beta.kubernetes.io/arch": "amd64",
+          "beta.kubernetes.io/instance-type": "t2.medium",
+          "beta.kubernetes.io/os": "linux",
+          "failure-domain.beta.kubernetes.io/region": "us-east-2",
+          "failure-domain.beta.kubernetes.io/zone": "us-east-2a",
+          "kops.k8s.io/instancegroup": "nodes",
+          "kubernetes.io/hostname": "generics-aws-node-one",
+          "kubernetes.io/role": "node",
+          "node-role.kubernetes.io/node": ""
+        },
+        "annotations": {
+          "node.alpha.kubernetes.io/ttl": "0",
+          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+        }
+      },
+      "spec": {
+        "podCIDR": "100.96.1.0/24",
+        "externalID": "i-0e20dba1fad7f7aa0",
+        "providerID": "aws:///us-east-2a/i-0e20dba1fad7f7aa0"
+      },
+      "status": {
+        "capacity": {
+          "cpu": "2",
+          "ephemeral-storage": "125749636Ki",
+          "hugepages-2Mi": "0",
+          "memory": "4049260Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "2",
+          "ephemeral-storage": "115890864346",
+          "hugepages-2Mi": "0",
+          "memory": "3946860Ki",
+          "pods": "110"
+        },
+        "conditions": [
+          {
+            "type": "NetworkUnavailable",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-02T20:10:40Z",
+            "lastTransitionTime": "2018-11-02T20:10:40Z",
+            "reason": "RouteCreated",
+            "message": "RouteController created a route"
+          },
+          {
+            "type": "OutOfDisk",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:36Z",
+            "lastTransitionTime": "2018-11-02T20:10:31Z",
+            "reason": "KubeletHasSufficientDisk",
+            "message": "kubelet has sufficient disk space available"
+          },
+          {
+            "type": "MemoryPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:36Z",
+            "lastTransitionTime": "2018-11-02T20:10:31Z",
+            "reason": "KubeletHasSufficientMemory",
+            "message": "kubelet has sufficient memory available"
+          },
+          {
+            "type": "DiskPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:36Z",
+            "lastTransitionTime": "2018-11-02T20:10:31Z",
+            "reason": "KubeletHasNoDiskPressure",
+            "message": "kubelet has no disk pressure"
+          },
+          {
+            "type": "PIDPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:36Z",
+            "lastTransitionTime": "2018-11-02T20:10:31Z",
+            "reason": "KubeletHasSufficientPID",
+            "message": "kubelet has sufficient PID available"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastHeartbeatTime": "2018-11-29T20:25:36Z",
+            "lastTransitionTime": "2018-11-02T20:10:51Z",
+            "reason": "KubeletReady",
+            "message": "kubelet is posting ready status"
+          }
+        ],
+        "addresses": [
+          {
+            "type": "InternalIP",
+            "address": "172.20.51.244"
+          },
+          {
+            "type": "ExternalIP",
+            "address": "18.222.110.144"
+          },
+          {
+            "type": "InternalDNS",
+            "address": "generics-aws-node-one"
+          },
+          {
+            "type": "ExternalDNS",
+            "address": "ec2-18-222-110-144.us-east-2.compute.amazonaws.com"
+          },
+          {
+            "type": "Hostname",
+            "address": "generics-aws-node-one"
+          }
+        ],
+        "daemonEndpoints": {
+          "kubeletEndpoint": {
+            "Port": 10250
+          }
+        },
+        "nodeInfo": {
+          "machineID": "08655371e0c446229e1ef9883eca2f41",
+          "systemUUID": "EC2735DB-1691-9612-8B57-37FC7CB303A9",
+          "bootID": "989b5769-fd22-4044-82c8-038bb40d4702",
+          "kernelVersion": "4.4.148-k8s",
+          "osImage": "Debian GNU/Linux 8 (jessie)",
+          "containerRuntimeVersion": "docker://17.3.2",
+          "kubeletVersion": "v1.10.6",
+          "kubeProxyVersion": "v1.10.6",
+          "operatingSystem": "linux",
+          "architecture": "amd64"
+        },
+        "images": [
+          {
+            "names": [
+              "chaitanyaphalak/k8s-new-metrics@sha256:0c81ae205ea5ca178ed50f22ee283f4d2f6b9f99d19a993c7ff4a4281941b1df",
+              "chaitanyaphalak/k8s-new-metrics:beta-ssl-latest"
+            ],
+            "sizeBytes": 1745025052
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:c1f95246fd68ab0ffb87d6f3ae001c83a88da086e46eb3d6ef3163a46b74dd18"
+            ],
+            "sizeBytes": 1741401286
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:0fe7d1c04f78cd9ad47003f76b975348c992bcda31c6e677138dcdd7f05a15e1",
+              "chaitanyaphalak/k8s-metrics-agg:beta-gimi-1"
+            ],
+            "sizeBytes": 1741307760
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:ae5abb641c19bbaa9bc133c1c0abb78eae1f861251bc5d563808834b4617c143",
+              "chaitanyaphalak/k8s-metrics-agg:beta-gimi"
+            ],
+            "sizeBytes": 1741307654
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:38d51334ca9c055a2be06bbe5bb4162e6aa5ed09104cd0d1a7fe1e2d9be227e5",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test-1"
+            ],
+            "sizeBytes": 1741157650
+          },
+          {
+            "names": [
+              "luckyj5/k8s-new-metrics@sha256:2f1bf0728e2ed4ffb21eb1a011e2fb919470bd86e6eca9a75cb4d1aba7133131",
+              "luckyj5/k8s-new-metrics:beta"
+            ],
+            "sizeBytes": 1741035086
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-new-metrics@sha256:a64c2ebd3aeb59b53d92ecbda8ca44e0ddae52404c085bb72e87234f6609f5f8",
+              "chaitanyaphalak/k8s-new-metrics:beta"
+            ],
+            "sizeBytes": 1740404571
+          },
+          {
+            "names": [
+              "protokube:1.10.0"
+            ],
+            "sizeBytes": 278482183
+          },
+          {
+            "names": [
+              "k8s.gcr.io/kube-proxy@sha256:99a9e5ce663a27603a297981156cef2163cb6eee3a2e4fcf958063ec09a4cfc0",
+              "k8s.gcr.io/kube-proxy:v1.10.6"
+            ],
+            "sizeBytes": 97861102
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:59003ece0ac3739c2b29564397a547a1f2819ebc6f25245a8440ea34280a18a6",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test-5"
+            ],
+            "sizeBytes": 58503001
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:9a8621ab7daf1072a7ce29efb553f268c8521398fa5e1ae630a330156f8e943e"
+            ],
+            "sizeBytes": 58502997
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:027445508852600691b939b657f28683c1fe6e4b7804ae42cff6b9fa5daf3798",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test-4"
+            ],
+            "sizeBytes": 57990368
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:9a9f46516844aeb73840ae88e360d77e7f334505a800e59c901abf9a65528bb1"
+            ],
+            "sizeBytes": 57990362
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:84fb945ff2aa2ad1b8dcfc65f75c0eb283097a08d8692bd3abb2af291136772a",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test-3"
+            ],
+            "sizeBytes": 57990299
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:c2c9a8e45f5f7ca13d05c1d0166ec3bf2f1777a47135133c363041f17d1fe735",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test"
+            ],
+            "sizeBytes": 57990166
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:bc76be1c5873f33f85b6dfea608db3c50742ebb3353946f40d8506ff2475d071"
+            ],
+            "sizeBytes": 57990154
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:3e06a71d197caff6326508850a2e7f1a209447b30613ba889ce5d6cbf481b348",
+              "chaitanyaphalak/k8s-metrics-agg:beta"
+            ],
+            "sizeBytes": 57990118
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:4f82e1b3fde000e3888153a60313e2dc4ec1dae809afe7e3a2e613816de10979"
+            ],
+            "sizeBytes": 57959794
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:9f115c5b8e150a052f499d0fc652597f1656c63bc924d1a0287f516fc8b451fa"
+            ],
+            "sizeBytes": 57870467
+          },
+          {
+            "names": [
+              "k8s.gcr.io/cluster-proportional-autoscaler-amd64@sha256:003f98d9f411ddfa6ff6d539196355e03ddd69fa4ed38c7ffb8fec6f729afe2d",
+              "k8s.gcr.io/cluster-proportional-autoscaler-amd64:1.1.2-r2"
+            ],
+            "sizeBytes": 49644153
+          },
+          {
+            "names": [
+              "k8s.gcr.io/k8s-dns-kube-dns-amd64@sha256:b99fc3eee2a9f052f7eb4cc00f15eb12fc405fa41019baa2d6b79847ae7284a8",
+              "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.10"
+            ],
+            "sizeBytes": 49545125
+          },
+          {
+            "names": [
+              "k8s.gcr.io/k8s-dns-sidecar-amd64@sha256:4f1ab957f87b94a5ec1edc26fae50da2175461f00afecf68940c4aa079bd08a4",
+              "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.10"
+            ],
+            "sizeBytes": 41630977
+          },
+          {
+            "names": [
+              "k8s.gcr.io/metrics-server-amd64@sha256:78938f933822856f443e6827fe5b37d6cc2f74ae888ac8b33d06fdbe5f8c658b",
+              "k8s.gcr.io/metrics-server-amd64:v0.3.1"
+            ],
+            "sizeBytes": 40767713
+          },
+          {
+            "names": [
+              "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64@sha256:bbb2a290a568125b3b996028958eb773f33b5b87a6b37bf38a28f8b62dddb3c8",
+              "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.10"
+            ],
+            "sizeBytes": 40367821
+          },
+          {
+            "names": [
+              "k8s.gcr.io/pause-amd64@sha256:163ac025575b775d1c0f9bf0bdd0f086883171eb475b5068e7defa4ca9e76516",
+              "k8s.gcr.io/pause-amd64:3.0"
+            ],
+            "sizeBytes": 746888
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "name": "generics-aws-node-two",
+        "selfLink": "/api/v1/nodes/generics-aws-node-two",
+        "uid": "3ed06ea6-dedb-11e8-afef-02dd29648076",
+        "resourceVersion": "3046274",
+        "creationTimestamp": "2018-11-02T20:09:46Z",
+        "labels": {
+          "beta.kubernetes.io/arch": "amd64",
+          "beta.kubernetes.io/instance-type": "c4.large",
+          "beta.kubernetes.io/os": "linux",
+          "failure-domain.beta.kubernetes.io/region": "us-east-2",
+          "failure-domain.beta.kubernetes.io/zone": "us-east-2a",
+          "kops.k8s.io/instancegroup": "master-us-east-2a",
+          "kubernetes.io/hostname": "generics-aws-node-two",
+          "kubernetes.io/role": "master",
+          "node-role.kubernetes.io/master": ""
+        },
+        "annotations": {
+          "node.alpha.kubernetes.io/ttl": "0",
+          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+        }
+      },
+      "spec": {
+        "podCIDR": "100.96.0.0/24",
+        "externalID": "i-05a5af9bc39c4e1b0",
+        "providerID": "aws:///us-east-2a/i-05a5af9bc39c4e1b0",
+        "taints": [
+          {
+            "key": "node-role.kubernetes.io/master",
+            "effect": "NoSchedule"
+          }
+        ]
+      },
+      "status": {
+        "capacity": {
+          "cpu": "2",
+          "ephemeral-storage": "62837052Ki",
+          "hugepages-2Mi": "0",
+          "memory": "3857268Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "2",
+          "ephemeral-storage": "57910627028",
+          "hugepages-2Mi": "0",
+          "memory": "3754868Ki",
+          "pods": "110"
+        },
+        "conditions": [
+          {
+            "type": "NetworkUnavailable",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-02T20:09:50Z",
+            "lastTransitionTime": "2018-11-02T20:09:50Z",
+            "reason": "RouteCreated",
+            "message": "RouteController created a route"
+          },
+          {
+            "type": "OutOfDisk",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:32Z",
+            "lastTransitionTime": "2018-11-02T20:09:46Z",
+            "reason": "KubeletHasSufficientDisk",
+            "message": "kubelet has sufficient disk space available"
+          },
+          {
+            "type": "MemoryPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:32Z",
+            "lastTransitionTime": "2018-11-02T20:09:46Z",
+            "reason": "KubeletHasSufficientMemory",
+            "message": "kubelet has sufficient memory available"
+          },
+          {
+            "type": "DiskPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:32Z",
+            "lastTransitionTime": "2018-11-02T20:09:46Z",
+            "reason": "KubeletHasNoDiskPressure",
+            "message": "kubelet has no disk pressure"
+          },
+          {
+            "type": "PIDPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:32Z",
+            "lastTransitionTime": "2018-11-02T20:09:46Z",
+            "reason": "KubeletHasSufficientPID",
+            "message": "kubelet has sufficient PID available"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastHeartbeatTime": "2018-11-29T20:25:32Z",
+            "lastTransitionTime": "2018-11-02T20:10:06Z",
+            "reason": "KubeletReady",
+            "message": "kubelet is posting ready status"
+          }
+        ],
+        "addresses": [
+          {
+            "type": "InternalIP",
+            "address": "172.20.57.89"
+          },
+          {
+            "type": "ExternalIP",
+            "address": "3.16.47.214"
+          },
+          {
+            "type": "InternalDNS",
+            "address": "generics-aws-node-two"
+          },
+          {
+            "type": "ExternalDNS",
+            "address": "ec2-3-16-47-214.us-east-2.compute.amazonaws.com"
+          },
+          {
+            "type": "Hostname",
+            "address": "generics-aws-node-two"
+          }
+        ],
+        "daemonEndpoints": {
+          "kubeletEndpoint": {
+            "Port": 10250
+          }
+        },
+        "nodeInfo": {
+          "machineID": "7e1b6f53e0f54d33af5c013949069221",
+          "systemUUID": "EC29DF56-B67A-59F6-4935-5CB245071756",
+          "bootID": "72a6f768-37e0-436c-bf8b-65bfd83b4e24",
+          "kernelVersion": "4.4.148-k8s",
+          "osImage": "Debian GNU/Linux 8 (jessie)",
+          "containerRuntimeVersion": "docker://17.3.2",
+          "kubeletVersion": "v1.10.6",
+          "kubeProxyVersion": "v1.10.6",
+          "operatingSystem": "linux",
+          "architecture": "amd64"
+        },
+        "images": [
+          {
+            "names": [
+              "protokube:1.10.0"
+            ],
+            "sizeBytes": 278482183
+          },
+          {
+            "names": [
+              "k8s.gcr.io/kube-apiserver@sha256:3283c534aab386bc678986c74c2fc855db46b3f424884d547641c82dba6ec5de",
+              "k8s.gcr.io/kube-apiserver:v1.10.6"
+            ],
+            "sizeBytes": 228066280
+          },
+          {
+            "names": [
+              "k8s.gcr.io/kube-controller-manager@sha256:93bbd2218a04253db98438ee49d9512359ee9d2a89e2a4247d520b21296acfd6",
+              "k8s.gcr.io/kube-controller-manager:v1.10.6"
+            ],
+            "sizeBytes": 150824264
+          },
+          {
+            "names": [
+              "kope/dns-controller@sha256:a4f5c5490b23e6bad32028d223b172f3fc9a6d4251cc5eea6e5e389c8dc12024",
+              "kope/dns-controller:1.10.0"
+            ],
+            "sizeBytes": 119435348
+          },
+          {
+            "names": [
+              "k8s.gcr.io/kube-proxy@sha256:99a9e5ce663a27603a297981156cef2163cb6eee3a2e4fcf958063ec09a4cfc0",
+              "k8s.gcr.io/kube-proxy:v1.10.6"
+            ],
+            "sizeBytes": 97861102
+          },
+          {
+            "names": [
+              "k8s.gcr.io/kube-scheduler@sha256:83eb7da923c75ef02fd0f8665b2411d6f3bf5e2df0de35849890c65a3d667d7a",
+              "k8s.gcr.io/kube-scheduler:v1.10.6"
+            ],
+            "sizeBytes": 51215735
+          },
+          {
+            "names": [
+              "k8s.gcr.io/etcd@sha256:19544a655157fb089b62d4dac02bbd095f82ca245dd5e31dd1684d175b109947",
+              "k8s.gcr.io/etcd:2.2.1"
+            ],
+            "sizeBytes": 28191895
+          },
+          {
+            "names": [
+              "k8s.gcr.io/pause-amd64@sha256:163ac025575b775d1c0f9bf0bdd0f086883171eb475b5068e7defa4ca9e76516",
+              "k8s.gcr.io/pause-amd64:3.0"
+            ],
+            "sizeBytes": 746888
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "name": "generics-aws-node-three",
+        "selfLink": "/api/v1/nodes/generics-aws-node-three",
+        "uid": "5a9079b7-dedb-11e8-afef-02dd29648076",
+        "resourceVersion": "3046275",
+        "creationTimestamp": "2018-11-02T20:10:33Z",
+        "labels": {
+          "beta.kubernetes.io/arch": "amd64",
+          "beta.kubernetes.io/instance-type": "t2.medium",
+          "beta.kubernetes.io/os": "linux",
+          "failure-domain.beta.kubernetes.io/region": "us-east-2",
+          "failure-domain.beta.kubernetes.io/zone": "us-east-2a",
+          "kops.k8s.io/instancegroup": "nodes",
+          "kubernetes.io/hostname": "generics-aws-node-three",
+          "kubernetes.io/role": "node",
+          "node-role.kubernetes.io/node": ""
+        },
+        "annotations": {
+          "node.alpha.kubernetes.io/ttl": "0",
+          "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+        }
+      },
+      "spec": {
+        "podCIDR": "100.96.2.0/24",
+        "externalID": "i-05f0ead30a238bf15",
+        "providerID": "aws:///us-east-2a/i-05f0ead30a238bf15"
+      },
+      "status": {
+        "capacity": {
+          "cpu": "2",
+          "ephemeral-storage": "125749636Ki",
+          "hugepages-2Mi": "0",
+          "memory": "4049260Ki",
+          "pods": "110"
+        },
+        "allocatable": {
+          "cpu": "2",
+          "ephemeral-storage": "115890864346",
+          "hugepages-2Mi": "0",
+          "memory": "3946860Ki",
+          "pods": "110"
+        },
+        "conditions": [
+          {
+            "type": "NetworkUnavailable",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-02T20:10:40Z",
+            "lastTransitionTime": "2018-11-02T20:10:40Z",
+            "reason": "RouteCreated",
+            "message": "RouteController created a route"
+          },
+          {
+            "type": "OutOfDisk",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:33Z",
+            "lastTransitionTime": "2018-11-02T20:10:33Z",
+            "reason": "KubeletHasSufficientDisk",
+            "message": "kubelet has sufficient disk space available"
+          },
+          {
+            "type": "MemoryPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:33Z",
+            "lastTransitionTime": "2018-11-02T20:10:33Z",
+            "reason": "KubeletHasSufficientMemory",
+            "message": "kubelet has sufficient memory available"
+          },
+          {
+            "type": "DiskPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:33Z",
+            "lastTransitionTime": "2018-11-02T20:10:33Z",
+            "reason": "KubeletHasNoDiskPressure",
+            "message": "kubelet has no disk pressure"
+          },
+          {
+            "type": "PIDPressure",
+            "status": "False",
+            "lastHeartbeatTime": "2018-11-29T20:25:33Z",
+            "lastTransitionTime": "2018-11-02T20:10:33Z",
+            "reason": "KubeletHasSufficientPID",
+            "message": "kubelet has sufficient PID available"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastHeartbeatTime": "2018-11-29T20:25:33Z",
+            "lastTransitionTime": "2018-11-02T20:10:53Z",
+            "reason": "KubeletReady",
+            "message": "kubelet is posting ready status"
+          }
+        ],
+        "addresses": [
+          {
+            "type": "InternalIP",
+            "address": "172.20.63.245"
+          },
+          {
+            "type": "ExternalIP",
+            "address": "18.220.134.99"
+          },
+          {
+            "type": "InternalDNS",
+            "address": "generics-aws-node-three"
+          },
+          {
+            "type": "ExternalDNS",
+            "address": "ec2-18-220-134-99.us-east-2.compute.amazonaws.com"
+          },
+          {
+            "type": "Hostname",
+            "address": "generics-aws-node-three"
+          }
+        ],
+        "daemonEndpoints": {
+          "kubeletEndpoint": {
+            "Port": 10250
+          }
+        },
+        "nodeInfo": {
+          "machineID": "1dee64c3baa145dd86c91b26da7a0db8",
+          "systemUUID": "EC260D4B-8B3E-6543-0A59-1A4A1BB0FDA3",
+          "bootID": "65f699cc-db75-4985-83ce-56217fb1356d",
+          "kernelVersion": "4.4.148-k8s",
+          "osImage": "Debian GNU/Linux 8 (jessie)",
+          "containerRuntimeVersion": "docker://17.3.2",
+          "kubeletVersion": "v1.10.6",
+          "kubeProxyVersion": "v1.10.6",
+          "operatingSystem": "linux",
+          "architecture": "amd64"
+        },
+        "images": [
+          {
+            "names": [
+              "chaitanyaphalak/k8s-new-metrics@sha256:0c81ae205ea5ca178ed50f22ee283f4d2f6b9f99d19a993c7ff4a4281941b1df",
+              "chaitanyaphalak/k8s-new-metrics:beta-ssl-latest"
+            ],
+            "sizeBytes": 1745025052
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:c1f95246fd68ab0ffb87d6f3ae001c83a88da086e46eb3d6ef3163a46b74dd18"
+            ],
+            "sizeBytes": 1741401286
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:0fe7d1c04f78cd9ad47003f76b975348c992bcda31c6e677138dcdd7f05a15e1",
+              "chaitanyaphalak/k8s-metrics-agg:beta-gimi-1"
+            ],
+            "sizeBytes": 1741307760
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:ae5abb641c19bbaa9bc133c1c0abb78eae1f861251bc5d563808834b4617c143",
+              "chaitanyaphalak/k8s-metrics-agg:beta-gimi"
+            ],
+            "sizeBytes": 1741307654
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:1e5f20cc489666cbe787892dd3e68bfc0a01bcc185822f7457b3f99a0f46023b",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test"
+            ],
+            "sizeBytes": 1741160544
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:d1583f2a78b021fd925395d220ba0b26c53236b9d4221e8233982eea1a9d9943",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test-2"
+            ],
+            "sizeBytes": 1741159276
+          },
+          {
+            "names": [
+              "luckyj5/k8s-new-metrics@sha256:2f1bf0728e2ed4ffb21eb1a011e2fb919470bd86e6eca9a75cb4d1aba7133131",
+              "luckyj5/k8s-new-metrics:beta"
+            ],
+            "sizeBytes": 1741035086
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-new-metrics@sha256:a64c2ebd3aeb59b53d92ecbda8ca44e0ddae52404c085bb72e87234f6609f5f8",
+              "chaitanyaphalak/k8s-new-metrics:beta"
+            ],
+            "sizeBytes": 1740404571
+          },
+          {
+            "names": [
+              "protokube:1.10.0"
+            ],
+            "sizeBytes": 278482183
+          },
+          {
+            "names": [
+              "k8s.gcr.io/kube-proxy@sha256:99a9e5ce663a27603a297981156cef2163cb6eee3a2e4fcf958063ec09a4cfc0",
+              "k8s.gcr.io/kube-proxy:v1.10.6"
+            ],
+            "sizeBytes": 97861102
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:59003ece0ac3739c2b29564397a547a1f2819ebc6f25245a8440ea34280a18a6",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test-5"
+            ],
+            "sizeBytes": 58503001
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:9a8621ab7daf1072a7ce29efb553f268c8521398fa5e1ae630a330156f8e943e"
+            ],
+            "sizeBytes": 58502997
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:027445508852600691b939b657f28683c1fe6e4b7804ae42cff6b9fa5daf3798",
+              "chaitanyaphalak/k8s-metrics-agg:beta-test-4"
+            ],
+            "sizeBytes": 57990368
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:bc76be1c5873f33f85b6dfea608db3c50742ebb3353946f40d8506ff2475d071"
+            ],
+            "sizeBytes": 57990154
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:5d0e5c0fc4495ddf27cc98205f92839d8efb418e6e3e1d813bdf8fe6c24363db"
+            ],
+            "sizeBytes": 57990145
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:3e06a71d197caff6326508850a2e7f1a209447b30613ba889ce5d6cbf481b348",
+              "chaitanyaphalak/k8s-metrics-agg:beta"
+            ],
+            "sizeBytes": 57990118
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:4f82e1b3fde000e3888153a60313e2dc4ec1dae809afe7e3a2e613816de10979"
+            ],
+            "sizeBytes": 57959794
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:78d3fbec0ab62fb2a1ffcf66fdd3451c219bd35c98960c14be88223e3b42c9f9"
+            ],
+            "sizeBytes": 57901006
+          },
+          {
+            "names": [
+              "chaitanyaphalak/k8s-metrics-agg@sha256:ff0b7ae78ebb255070ab418c0de09f65eedc7fd99d9fefae46672ea6f8d4feac"
+            ],
+            "sizeBytes": 57870466
+          },
+          {
+            "names": [
+              "k8s.gcr.io/k8s-dns-kube-dns-amd64@sha256:b99fc3eee2a9f052f7eb4cc00f15eb12fc405fa41019baa2d6b79847ae7284a8",
+              "k8s.gcr.io/k8s-dns-kube-dns-amd64:1.14.10"
+            ],
+            "sizeBytes": 49545125
+          },
+          {
+            "names": [
+              "k8s.gcr.io/k8s-dns-sidecar-amd64@sha256:4f1ab957f87b94a5ec1edc26fae50da2175461f00afecf68940c4aa079bd08a4",
+              "k8s.gcr.io/k8s-dns-sidecar-amd64:1.14.10"
+            ],
+            "sizeBytes": 41630977
+          },
+          {
+            "names": [
+              "k8s.gcr.io/metrics-server-amd64@sha256:78938f933822856f443e6827fe5b37d6cc2f74ae888ac8b33d06fdbe5f8c658b",
+              "k8s.gcr.io/metrics-server-amd64:v0.3.1"
+            ],
+            "sizeBytes": 40767713
+          },
+          {
+            "names": [
+              "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64@sha256:bbb2a290a568125b3b996028958eb773f33b5b87a6b37bf38a28f8b62dddb3c8",
+              "k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64:1.14.10"
+            ],
+            "sizeBytes": 40367821
+          },
+          {
+            "names": [
+              "gcr.io/kubernetes-helm/tiller@sha256:417aae19a0709075df9cc87e2fcac599b39d8f73ac95e668d9627fec9d341af2",
+              "gcr.io/kubernetes-helm/tiller:v2.9.1"
+            ],
+            "sizeBytes": 36077834
+          },
+          {
+            "names": [
+              "k8s.gcr.io/pause-amd64@sha256:163ac025575b775d1c0f9bf0bdd0f086883171eb475b5068e7defa4ca9e76516",
+              "k8s.gcr.io/pause-amd64:3.0"
+            ],
+            "sizeBytes": 746888
+          }
+        ]
+      }
+    }
+  ]
+}
