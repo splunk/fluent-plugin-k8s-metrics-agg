@@ -3,13 +3,14 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name    = 'fluent-plugin-k8s-metrics-agg'
-  spec.version = '1.0.1'
-
+  spec.version = File.read('VERSION')
   spec.authors = ['Splunk Inc.']
+  spec.email   = ['DataEdge@splunk.com']
+
   spec.summary       = %q{A fluentd input plugin that collects kubernetes cluster metrics.}
   spec.description   = %q{A fluentd input plugin that collects node and container metrics from a kubernetes cluster via kubeapiserver API.}
-  spec.homepage      = "https://github.com/splunk/fluent-plugin-k8s-metrics-agg"
-  spec.license       = "Apache-2.0"
+  spec.homepage      = 'https://github.com/splunk/fluent-plugin-k8s-metrics-agg'
+  spec.license       = 'Apache-2.0'
 
   test_files, files  = `git ls-files -z`.split("\x0").partition do |f|
     f.match(%r{^(test|spec|features)/})
