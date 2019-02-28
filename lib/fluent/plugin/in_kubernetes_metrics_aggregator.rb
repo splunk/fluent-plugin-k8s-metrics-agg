@@ -209,7 +209,7 @@ module Fluent
           kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
         end
 
-        raise Fluent::ConfigError, 'kubernetes url is not set' unless kubernetes_url_final
+        raise Fluent::ConfigError, 'kubernetes url is not set in configuration, or environment variables' unless kubernetes_url_final
 
         # Use SSL certificate and bearer token from Kubernetes service account.
         if Dir.exist?(@secret_dir)
@@ -234,8 +234,6 @@ module Fluent
 
         auth_options = {}
         auth_options[:bearer_token] = File.read(@bearer_token_file) if @bearer_token_file
-
-        kubernetes_url_final = "https://#{@kubernetes_url}:#{@kubelet_port}/api/"
 
         @client = Kubeclient::Client.new(
             kubernetes_url_final, 'v1',

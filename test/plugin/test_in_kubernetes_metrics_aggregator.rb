@@ -10,7 +10,6 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
   @@hash_map_test = {}
 
   ZERO_CONFIG = %([
-      kubernetes_url https://node.fakedestination.com
   ]).freeze
 
   BASIC_CONFIG = %([
@@ -40,6 +39,8 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
 
   setup do
     Fluent::Test.setup
+    ENV['KUBERNETES_SERVICE_HOST'] = "node.fakedestination.com"
+    ENV['KUBERNETES_SERVICE_PORT'] = "10255"
     stub_k8s_requests
     @driver = create_driver(METRIC_TEST_CONFIG)
     @driver.run timeout: 20, expect_emits: 200, shutdown: false
