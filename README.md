@@ -1,5 +1,5 @@
 [![CircleCI](https://circleci.com/gh/git-lfs/git-lfs.svg?style=shield&circle-token=856152c2b02bfd236f54d21e1f581f3e4ebf47ad)](https://circleci.com/gh/splunk/fluent-plugin-k8s-metrics-agg)
-# fluent-plugin-k8s-metrics-agg
+# Fluentd Plugin for Kubernetes Metrics - Aggregator
 
 [Fluentd](https://fluentd.org/) input plugin collects kubernetes cluster metrics from the kubeapiserver API. The API is exposed by [KubeApiServer](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/) on a kubernetes cluster.
 
