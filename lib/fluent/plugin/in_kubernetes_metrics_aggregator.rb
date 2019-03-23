@@ -420,7 +420,7 @@ module Fluent
               pod_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
             end
 
-            pod_labels = { 'name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['name'], 'node' => pod_json['spec']['nodeName'] }
+            pod_labels = { 'name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['namespace'], 'node' => pod_json['spec']['nodeName'] }
             emit_limits_requests_metrics(generate_tag('pod'), @scraped_at, pod_labels, pod_usage_metrics)
             @@namespace_usage_metrics_map[pod_namespace].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s + ('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s + ('m'),
                                                                            pod_usage_metrics.instance_variable_get(:@memory_limit).to_s + ('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s + ('Mi'))
