@@ -355,7 +355,7 @@ module Fluent
           begin
             @client.discover unless @client.discovered
             @client.rest_client['/pods'].tap do |endpoint|
-              log.info("Use URL #{endpoint.url} for scraping limits requests metrics")
+              log.debug("Use URL #{endpoint.url} for scraping limits requests metrics")
             end
           end
       end
@@ -454,7 +454,7 @@ module Fluent
           begin
             @client.discover unless @client.discovered
             @client.rest_client['/nodes'].tap do |endpoint|
-              log.info("Use URL #{endpoint.url} for scraping node metrics")
+              log.debug("Use URL #{endpoint.url} for scraping node metrics")
             end
           end
       end
@@ -527,7 +527,7 @@ module Fluent
           begin
             @client.discover unless @client.discovered
             @client.rest_client['/nodes'].tap do |endpoint|
-              log.info("Use URL #{endpoint.url} for scraping node metrics")
+              log.debug("Use URL #{endpoint.url} for scraping node metrics")
             end
           end
       end
@@ -560,7 +560,7 @@ module Fluent
               begin
                 @client.discover unless @client.discovered
                 @client.rest_client["/nodes/#{node_name}:#{@kubelet_port}/proxy/stats/summary"].tap do |endpoint|
-                  log.info("Use URL #{endpoint.url} for scraping resource usage metrics")
+                  log.debug("Use URL #{endpoint.url} for scraping resource usage metrics")
                 end
               end
 
