@@ -566,7 +566,7 @@ module Fluent
 
             node_response = JSON.parse(node_rest_client.get(@client.headers))
             Array(node_response['pods']).each do |pod_json|
-              pod_cpu_usage = pod_json['cpu']['usageNanoCores']
+              pod_cpu_usage = pod_json['cpu']['usageNanoCores']/ 1_000_000
               pod_memory_usage = pod_json['memory']['usageBytes']
               pod_namespace = pod_json['podRef']['namespace']
               pod_usage = ResourceUsageMetricsUnit.new
