@@ -43,7 +43,7 @@ class KubernetesMetricsAggInputTest < Test::Unit::TestCase
     ENV['KUBERNETES_SERVICE_PORT'] = "10255"
     stub_k8s_requests
     @driver = create_driver(METRIC_TEST_CONFIG)
-    @driver.run timeout: 20, expect_emits: 200, shutdown: false
+    @driver.run timeout: 30, expect_emits: 200, shutdown: false
 
     @driver.events.each do |tag, time, record|
       @@hash_map_test[tag] = tag, time, record

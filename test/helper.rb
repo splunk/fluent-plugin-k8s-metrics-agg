@@ -91,6 +91,8 @@ module PluginTestHelper
                'Host' => 'node.fakedestination.com:10255'
              }
            )
+           .to_timeout
+           .then
            .to_return(status: 200,
                       body: File.open(File.expand_path('../pods.json', __FILE__)),
                       headers: {})
@@ -106,6 +108,8 @@ module PluginTestHelper
                'Host' => 'node.fakedestination.com:10255'
              }
            )
+           .to_timeout
+           .then
            .to_return(status: 200,
                       body: File.open(File.expand_path('../node1.json', __FILE__)),
                       headers: {})
@@ -121,6 +125,8 @@ module PluginTestHelper
                'Host' => 'node.fakedestination.com:10255'
              }
            )
+           .to_timeout
+           .then
            .to_return(status: 200,
                       body: File.open(File.expand_path('../node2.json', __FILE__)),
                       headers: {})
@@ -136,6 +142,8 @@ module PluginTestHelper
                'Host' => 'node.fakedestination.com:10255'
              }
            )
+           .to_timeout
+           .then
            .to_return(status: 200,
                       body: File.open(File.expand_path('../node3.json', __FILE__)),
                       headers: {})
@@ -151,6 +159,8 @@ module PluginTestHelper
                'Host' => 'node.fakedestination.com:10255'
              }
            )
+           .to_timeout.then.to_timeout
+           .then
            .to_return(status: 200,
                       body: File.open(File.expand_path('../nodes.json', __FILE__)),
                       headers: {})
