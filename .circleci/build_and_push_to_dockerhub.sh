@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -e
+FLUENTD_HEC_GEM_VERSION=`cat docker/FLUENTD_HEC_GEM_VERSION`
 echo "Building docker image..."
 cp /tmp/pkg/fluent-plugin-k8s-metrics-agg-*.gem docker
 VERSION=`cat VERSION`
-docker build --build-arg VERSION=$VERSION --no-cache -t splunk/fluent-plugin-k8s-metrics-agg:metrics-aggregator ./docker
+docker build --build-arg VERSION=$FLUENTD_HEC_GEM_VERSION --no-cache -t splunk/fluent-plugin-k8s-metrics-agg:metrics-aggregator ./docker
 docker tag splunk/fluent-plugin-k8s-metrics-agg:metrics-aggregator splunk/${DOCKERHUB_REPO_NAME}:${VERSION}
 echo "Push docker image to splunk dockerhub..."
 docker login --username=$DOCKERHUB_ACCOUNT_ID --password=$DOCKERHUB_ACCOUNT_PASS
