@@ -363,6 +363,9 @@ module Fluent
       def scrape_limits_requests_metrics
         response = limits_requests_api.get(@client.headers)
         handle_limits_requests_res(response)
+      rescue StandardError => e
+        log.error "Failed to get limit metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error_backtrace
       end
 
       # This method is used to handle responses from the kube apiserver api
@@ -375,7 +378,7 @@ module Fluent
           log.error "ExMultiJson.load(response.body) expected 2xx from summary API, but got #{response.code}. Response body = #{response.body}"
         end
       rescue StandardError => e
-        log.error "Failed to scrape metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error "Failed to scrape limit metrics, error=#{$ERROR_INFO}, #{e.inspect}"
         log.error_backtrace
       end
 
@@ -462,6 +465,9 @@ module Fluent
       def scrape_node_metrics
         response = node_api.get(@client.headers)
         handle_node_response(response)
+      rescue StandardError => e
+        log.error "Failed to get node metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error_backtrace
       end
 
       # This method is used to handle responses from the kubeapiserver api
@@ -474,7 +480,7 @@ module Fluent
           log.error "ExMultiJson.load(response.body) expected 2xx from summary API, but got #{response.code}. Response body = #{response.body}"
         end
       rescue StandardError => e
-        log.error "Failed to scrape metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error "Failed to scrape node metrics, error=#{$ERROR_INFO}, #{e.inspect}"
         log.error_backtrace
       end
 
@@ -535,6 +541,9 @@ module Fluent
       def scrape_resource_usage_metrics
         response = resource_usage_api.get(@client.headers)
         handle_resource_usage_response(response)
+       rescue StandardError => e
+         log.error "Failed to get resource usage metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+         log.error_backtrace
       end
 
       # This method is used to handle responses from the kubelet summary api
@@ -547,7 +556,7 @@ module Fluent
           log.error "ExMultiJson.load(response.body) expected 2xx from summary API, but got #{response.code}. Response body = #{response.body}"
         end
       rescue StandardError => e
-        log.error "Failed to scrape metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error "Failed to scrape resource usage metrics, error=#{$ERROR_INFO}, #{e.inspect}"
         log.error_backtrace
       end
 
