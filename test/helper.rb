@@ -42,14 +42,11 @@ module PluginTestHelper
                          'https://node.fakedestination.com:10255/api')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../v1.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../v1.json', __FILE__)))
   end
 
   def stub_api_v1
@@ -57,14 +54,11 @@ module PluginTestHelper
                          'https://node.fakedestination.com:10255/api/v1')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../v1.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../v1.json', __FILE__)))
   end
 
   def stub_api_pods(timeout=false)
@@ -72,8 +66,6 @@ module PluginTestHelper
                                     'https://node.fakedestination.com:10255/api/v1/pods')
                    .with(
                        headers: {
-                           'Accept' => '*/*',
-                           'Accept-Encoding' => 'gzip, deflate',
                            'Host' => 'node.fakedestination.com:10255'
                        }
                    )
@@ -82,8 +74,7 @@ module PluginTestHelper
     end
 
     get_pods.to_return(status: 200,
-                       body: File.open(File.expand_path('../pods.json', __FILE__)),
-                       headers: {})
+                       body: File.open(File.expand_path('../pods.json', __FILE__)))
   end
 
   def stub_api_node_1
@@ -91,14 +82,11 @@ module PluginTestHelper
                          'https://node.fakedestination.com:10255/api/v1/nodes/generics-aws-node-one:10255/proxy/stats/summary')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../node1.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../node1.json', __FILE__)))
   end
 
   def stub_api_node_2(timeout=false)
@@ -106,8 +94,6 @@ module PluginTestHelper
                                             'https://node.fakedestination.com:10255/api/v1/nodes/generics-aws-node-two:10255/proxy/stats/summary')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
@@ -117,8 +103,7 @@ module PluginTestHelper
     end
 
     get_node_summary.to_return(status: 200,
-                      body: File.open(File.expand_path('../node2.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../node2.json', __FILE__)))
   end
 
   def stub_api_node_3
@@ -126,22 +111,17 @@ module PluginTestHelper
                          'https://node.fakedestination.com:10255/api/v1/nodes/generics-aws-node-three:10255/proxy/stats/summary')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../node3.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../node3.json', __FILE__)))
   end
 
   def stub_api_nodes(timeout=false)
     get_nodes = WebMock.stub_request(:get, 'https://node.fakedestination.com:10255/api/v1/nodes')
                     .with(
                         headers: {
-                            'Accept' => '*/*',
-                            'Accept-Encoding' => 'gzip, deflate',
                             'Host' => 'node.fakedestination.com:10255'
                         }
                     )
@@ -151,8 +131,7 @@ module PluginTestHelper
     end
 
     get_nodes.to_return(status: 200,
-               body: File.open(File.expand_path('../nodes.json', __FILE__)),
-               headers: {})
+               body: File.open(File.expand_path('../nodes.json', __FILE__)))
   end
 
   def stub_k8s_init_requests
