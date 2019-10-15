@@ -355,7 +355,7 @@ module Fluent
           begin
             @client.discover unless @client.discovered
             @client.rest_client['/pods'].tap do |endpoint|
-              log.info("Use URL #{endpoint.url} for scraping limits requests metrics")
+              log.debug("Use URL #{endpoint.url} for scraping limits requests metrics")
             end
           end
       end
@@ -363,6 +363,9 @@ module Fluent
       def scrape_limits_requests_metrics
         response = limits_requests_api.get(@client.headers)
         handle_limits_requests_res(response)
+      rescue StandardError => e
+        log.error "Failed to get limit metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error_backtrace
       end
 
       # This method is used to handle responses from the kube apiserver api
@@ -375,7 +378,7 @@ module Fluent
           log.error "ExMultiJson.load(response.body) expected 2xx from summary API, but got #{response.code}. Response body = #{response.body}"
         end
       rescue StandardError => e
-        log.error "Failed to scrape metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error "Failed to scrape limit metrics, error=#{$ERROR_INFO}, #{e.inspect}"
         log.error_backtrace
       end
 
@@ -420,7 +423,7 @@ module Fluent
               pod_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
             end
 
-            pod_labels = { 'name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['name'], 'node' => pod_json['spec']['nodeName'] }
+            pod_labels = { 'name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['namespace'], 'node' => pod_json['spec']['nodeName'] }
             emit_limits_requests_metrics(generate_tag('pod'), @scraped_at, pod_labels, pod_usage_metrics)
             @@namespace_usage_metrics_map[pod_namespace].add_usage_metrics(pod_usage_metrics.instance_variable_get(:@cpu_limit).to_s + ('m'), pod_usage_metrics.instance_variable_get(:@cpu_request).to_s + ('m'),
                                                                            pod_usage_metrics.instance_variable_get(:@memory_limit).to_s + ('Mi'), pod_usage_metrics.instance_variable_get(:@memory_request).to_s + ('Mi'))
@@ -454,7 +457,7 @@ module Fluent
           begin
             @client.discover unless @client.discovered
             @client.rest_client['/nodes'].tap do |endpoint|
-              log.info("Use URL #{endpoint.url} for scraping node metrics")
+              log.debug("Use URL #{endpoint.url} for scraping node metrics")
             end
           end
       end
@@ -462,6 +465,9 @@ module Fluent
       def scrape_node_metrics
         response = node_api.get(@client.headers)
         handle_node_response(response)
+      rescue StandardError => e
+        log.error "Failed to get node metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error_backtrace
       end
 
       # This method is used to handle responses from the kubeapiserver api
@@ -474,7 +480,7 @@ module Fluent
           log.error "ExMultiJson.load(response.body) expected 2xx from summary API, but got #{response.code}. Response body = #{response.body}"
         end
       rescue StandardError => e
-        log.error "Failed to scrape metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error "Failed to scrape node metrics, error=#{$ERROR_INFO}, #{e.inspect}"
         log.error_backtrace
       end
 
@@ -527,7 +533,7 @@ module Fluent
           begin
             @client.discover unless @client.discovered
             @client.rest_client['/nodes'].tap do |endpoint|
-              log.info("Use URL #{endpoint.url} for scraping node metrics")
+              log.debug("Use URL #{endpoint.url} for scraping node metrics")
             end
           end
       end
@@ -535,6 +541,9 @@ module Fluent
       def scrape_resource_usage_metrics
         response = resource_usage_api.get(@client.headers)
         handle_resource_usage_response(response)
+       rescue StandardError => e
+         log.error "Failed to get resource usage metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+         log.error_backtrace
       end
 
       # This method is used to handle responses from the kubelet summary api
@@ -547,7 +556,7 @@ module Fluent
           log.error "ExMultiJson.load(response.body) expected 2xx from summary API, but got #{response.code}. Response body = #{response.body}"
         end
       rescue StandardError => e
-        log.error "Failed to scrape metrics, error=#{$ERROR_INFO}, #{e.inspect}"
+        log.error "Failed to scrape resource usage metrics, error=#{$ERROR_INFO}, #{e.inspect}"
         log.error_backtrace
       end
 
@@ -560,13 +569,13 @@ module Fluent
               begin
                 @client.discover unless @client.discovered
                 @client.rest_client["/nodes/#{node_name}:#{@kubelet_port}/proxy/stats/summary"].tap do |endpoint|
-                  log.info("Use URL #{endpoint.url} for scraping resource usage metrics")
+                  log.debug("Use URL #{endpoint.url} for scraping resource usage metrics")
                 end
               end
 
             node_response = JSON.parse(node_rest_client.get(@client.headers))
             Array(node_response['pods']).each do |pod_json|
-              pod_cpu_usage = pod_json['cpu']['usageNanoCores']
+              pod_cpu_usage = pod_json['cpu']['usageNanoCores']/ 1_000_000
               pod_memory_usage = pod_json['memory']['usageBytes']
               pod_namespace = pod_json['podRef']['namespace']
               pod_usage = ResourceUsageMetricsUnit.new

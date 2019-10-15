@@ -37,33 +37,16 @@ module PluginTestHelper
     k8s_url + '/v1/nodes/generics-aws-node-three:10255/proxy/stats/summary'
   end
 
-  def stub_api_port_10250
-    WebMock.stub_request(:get, 'https://node.fakedestination.com:10250/api')
-           .with(
-             headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
-               'Host' => 'node.fakedestination.com:10250'
-             }
-           )
-           .to_return(status: 200,
-                      body: File.open(File.expand_path('../v1.json', __FILE__)),
-                      headers: {})
-  end
-
   def stub_api_port_10255
     WebMock.stub_request(:get,
                          'https://node.fakedestination.com:10255/api')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../v1.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../v1.json', __FILE__)))
   end
 
   def stub_api_v1
@@ -71,29 +54,27 @@ module PluginTestHelper
                          'https://node.fakedestination.com:10255/api/v1')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../v1.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../v1.json', __FILE__)))
   end
 
-  def stub_api_pods
-    WebMock.stub_request(:get,
-                         'https://node.fakedestination.com:10255/api/v1/pods')
-           .with(
-             headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
-               'Host' => 'node.fakedestination.com:10255'
-             }
-           )
-           .to_return(status: 200,
-                      body: File.open(File.expand_path('../pods.json', __FILE__)),
-                      headers: {})
+  def stub_api_pods(timeout=false)
+    get_pods = WebMock.stub_request(:get,
+                                    'https://node.fakedestination.com:10255/api/v1/pods')
+                   .with(
+                       headers: {
+                           'Host' => 'node.fakedestination.com:10255'
+                       }
+                   )
+    if timeout
+      get_pods = get_pods.to_timeout.then
+    end
+
+    get_pods.to_return(status: 200,
+                       body: File.open(File.expand_path('../pods.json', __FILE__)))
   end
 
   def stub_api_node_1
@@ -101,29 +82,28 @@ module PluginTestHelper
                          'https://node.fakedestination.com:10255/api/v1/nodes/generics-aws-node-one:10255/proxy/stats/summary')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../node1.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../node1.json', __FILE__)))
   end
 
-  def stub_api_node_2
-    WebMock.stub_request(:get,
-                         'https://node.fakedestination.com:10255/api/v1/nodes/generics-aws-node-two:10255/proxy/stats/summary')
+  def stub_api_node_2(timeout=false)
+    get_node_summary = WebMock.stub_request(:get,
+                                            'https://node.fakedestination.com:10255/api/v1/nodes/generics-aws-node-two:10255/proxy/stats/summary')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
-           .to_return(status: 200,
-                      body: File.open(File.expand_path('../node2.json', __FILE__)),
-                      headers: {})
+
+    if timeout
+      get_node_summary = get_node_summary.to_timeout
+    end
+
+    get_node_summary.to_return(status: 200,
+                      body: File.open(File.expand_path('../node2.json', __FILE__)))
   end
 
   def stub_api_node_3
@@ -131,40 +111,45 @@ module PluginTestHelper
                          'https://node.fakedestination.com:10255/api/v1/nodes/generics-aws-node-three:10255/proxy/stats/summary')
            .with(
              headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
                'Host' => 'node.fakedestination.com:10255'
              }
            )
            .to_return(status: 200,
-                      body: File.open(File.expand_path('../node3.json', __FILE__)),
-                      headers: {})
+                      body: File.open(File.expand_path('../node3.json', __FILE__)))
   end
 
-  def stub_api_nodes
-    WebMock.stub_request(:get,
-                         'https://node.fakedestination.com:10255/api/v1/nodes')
-           .with(
-             headers: {
-               'Accept' => '*/*',
-               'Accept-Encoding' => 'gzip, deflate',
-               'Host' => 'node.fakedestination.com:10255'
-             }
-           )
-           .to_return(status: 200,
-                      body: File.open(File.expand_path('../nodes.json', __FILE__)),
-                      headers: {})
+  def stub_api_nodes(timeout=false)
+    get_nodes = WebMock.stub_request(:get, 'https://node.fakedestination.com:10255/api/v1/nodes')
+                    .with(
+                        headers: {
+                            'Host' => 'node.fakedestination.com:10255'
+                        }
+                    )
+
+    if timeout
+      get_nodes = get_nodes.to_timeout.times(2) # Nodes endpoint is called from two timers so must fail in both cases
+    end
+
+    get_nodes.to_return(status: 200,
+               body: File.open(File.expand_path('../nodes.json', __FILE__)))
   end
 
-  def stub_k8s_requests
-    stub_api_port_10250
+  def stub_k8s_init_requests
+    WebMock.reset!
+
+    stub_api_port_10255
+  end
+
+  def stub_k8s_requests(nodes_timeout: false, node_summary_timeout: false, pods_timeout: false)
+    WebMock.reset!
+
     stub_api_port_10255
     stub_api_v1
-    stub_api_pods
-    stub_api_nodes
+    stub_api_pods(pods_timeout)
+    stub_api_nodes(nodes_timeout)
     stub_api_node_1
+    stub_api_node_2(node_summary_timeout)
     stub_api_node_3
-    stub_api_node_2
   end
 
   def get_parsed_file(file_name)
