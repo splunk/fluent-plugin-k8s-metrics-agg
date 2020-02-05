@@ -1,5 +1,4 @@
 require 'simplecov'
-require 'fluent/plugin/in_kubernetes_metrics_aggregator.rb'
 SimpleCov.start
 
 $LOAD_PATH.unshift(File.expand_path('..', __dir__))
