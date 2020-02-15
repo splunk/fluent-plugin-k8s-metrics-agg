@@ -15,19 +15,15 @@ ENV VERSION=${VERSION}
 ENV FLUENT_USER fluent
 
 USER root
-
-COPY *.gem /tmp/
 COPY licenses /licenses
 
-RUN gem install -N fluentd:1.4.0 \
-       fluent-plugin-prometheus:1.3.0 \
-       fluent-plugin-record-modifier:2.0.1 \
-       fluent-plugin-splunk-hec:${VERSION} \
-       oj:3.7.9 \
-       multi_json:1.13.1 \
-       bigdecimal:1.4.3 \
-       kubeclient:4.3.0 && \
-    gem install -N /tmp/*.gem
+WORKDIR /app
+COPY fluent-plugin-k8s-metrics-agg*.gem .
+RUN gem unpack fluent-plugin-k8s-metrics-agg*.gem --target gem
+
+COPY Gemfile* ./
+RUN gem install bundler \
+   && bundle add fluent-plugin-splunk-hec -v ${VERSION} 
 
 RUN groupadd -r $FLUENT_USER && \
   useradd -r -g $FLUENT_USER $FLUENT_USER && \
