@@ -17,13 +17,12 @@ ENV FLUENT_USER fluent
 USER root
 COPY licenses /licenses
 
-WORKDIR /app
-COPY fluent-plugin-k8s-metrics-agg*.gem .
-RUN gem unpack fluent-plugin-k8s-metrics-agg*.gem --target gem
+COPY *.gem /tmp/
 
 COPY Gemfile* ./
 RUN gem install bundler \
-   && bundle add fluent-plugin-splunk-hec -v ${VERSION} 
+   && bundle add fluent-plugin-splunk-hec -v ${VERSION} \
+   && bundle exec gem install /tmp/*.gem
 
 RUN groupadd -r $FLUENT_USER && \
   useradd -r -g $FLUENT_USER $FLUENT_USER && \
