@@ -12,8 +12,9 @@ bundle exec rake build -t -v
 cp pkg/fluent-plugin-*.gem docker
 
 # Build Docker Image
+VERSION=`cat VERSION`
 FLUENTD_HEC_GEM_VERSION=`cat docker/FLUENTD_HEC_GEM_VERSION`
 echo "Copying licenses to be included in the docker image..."
 mkdir -p docker/licenses
 cp -rp LICENSE docker/licenses/
-docker build --build-arg VERSION=$FLUENTD_HEC_GEM_VERSION --no-cache -t splunk/k8s-metrics-aggr:$TAG ./docker
+docker build --build-arg VERSION=$VERSION --build-arg FLUENTD_HEC_GEM_VERSION=$FLUENTD_HEC_GEM_VERSION --no-cache -t splunk/k8s-metrics-aggr:$TAG ./docker

@@ -22,5 +22,5 @@ if [ $VERSION_COMMIT = $LATEST_COMMIT ];
         git push https://$RELEASE_GITHUB_USER:$RELEASE_GITHUB_PASS@github.com/splunk/fluent-plugin-k8s-metrics-agg.git release/$VERSION
         git checkout master
         git merge --no-edit release/$VERSION
-        git push https://$RELEASE_GITHUB_USER:$RELEASE_GITHUB_PASS@github.com/splunk/fluent-plugin-k8s-metrics-agg.git master
+        git push https://$RELEASE_GITHUB_USER:$RELEASE_GITHUB_PASS@github.com/splunk/fluent-plugin-k8s-metrics-agg.git master --force
 fi
