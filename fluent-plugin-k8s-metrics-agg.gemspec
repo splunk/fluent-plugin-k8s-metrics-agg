@@ -1,4 +1,4 @@
-lib = File.expand_path("../lib", __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
@@ -20,14 +20,14 @@ Gem::Specification.new do |spec|
   spec.test_files    = test_files
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency 'bundler', '~> 2.0.1'
-  spec.add_development_dependency 'rake', '~> 12.3.2'
+  spec.add_development_dependency 'bundler', '~> 2.0'
+  spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'test-unit', "~> 3.3.0"
   spec.add_development_dependency "simplecov", '~> 0.16.1'
   spec.add_development_dependency 'webmock', '~> 3.5.1'
-  spec.add_runtime_dependency 'fluentd', '~> 1.3.3'
-  spec.add_runtime_dependency 'kubeclient', '~> 4.2.2'
-  spec.add_runtime_dependency 'multi_json', '~> 1.13.1'
-  spec.add_runtime_dependency 'oj', '~> 3.7.8'
+  spec.add_runtime_dependency 'fluentd', '~> 1.9.1'
+  spec.add_runtime_dependency 'kubeclient', '~> 4.6.0'
+  spec.add_runtime_dependency 'multi_json', '~> 1.14.1'
+  spec.add_runtime_dependency 'oj', '~> 3.10.2'
 
 end
