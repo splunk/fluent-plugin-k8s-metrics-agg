@@ -16,11 +16,14 @@ if [ $VERSION_COMMIT = $LATEST_COMMIT ];
         fi 
         git config user.email "splunk-oss-admin@splunk.com"
         git config user.name "splunk-oss-admin"
+        # Checkout develop and pull latest
         git checkout develop
         git pull origin develop
-        git checkout -b release/$VERSION origin/develop
-        git push https://$RELEASE_GITHUB_USER:$RELEASE_GITHUB_PASS@github.com/splunk/fluent-plugin-k8s-metrics-agg.git release/$VERSION
+        # merge it to master branch
         git checkout master
-        git merge --no-edit release/$VERSION
-        git push https://$RELEASE_GITHUB_USER:$RELEASE_GITHUB_PASS@github.com/splunk/fluent-plugin-k8s-metrics-agg.git master --force
+        git merge --no-edit -X theirs develop
+        git push
+        # cut release branch from master
+        git checkout -b release/$VERSION
+        git push https://$RELEASE_GITHUB_USER:$RELEASE_GITHUB_PASS@github.com/splunk/fluent-plugin-k8s-metrics-agg.git release/$VERSION
 fi

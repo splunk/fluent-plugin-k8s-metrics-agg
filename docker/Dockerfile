@@ -1,7 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ruby-25
 
 ARG VERSION
-ARG FLUENTD_HEC_GEM_VERSION
 
 MAINTAINER DataEdge DataEdge@splunk.com
 
@@ -23,7 +22,7 @@ COPY *.gem /tmp/
 
 COPY Gemfile* ./
 RUN gem install bundler \
-   && bundle add fluent-plugin-splunk-hec -v ${FLUENTD_HEC_GEM_VERSION} \
+   && bundle install \
    && bundle exec gem install /tmp/*.gem
 
 RUN groupadd -r $FLUENT_USER && \
