@@ -129,8 +129,8 @@ workflows:
       #     requires:
       #       - unit_test
       - check_version:
-          # requires:
-          #   - func_test_master
+          requires:
+            - build
           #   - func_test_develop
           filters:
             branches:
