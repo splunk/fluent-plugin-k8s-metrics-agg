@@ -22,8 +22,8 @@ COPY *.gem /tmp/
 
 COPY Gemfile* ./
 RUN gem install bundler \
-   && bundle install \
-   && bundle exec gem install /tmp/*.gem
+   && gem unpack /tmp/*.gem --target gem \
+   && bundle install 
 
 RUN groupadd -r $FLUENT_USER && \
   useradd -r -g $FLUENT_USER $FLUENT_USER && \
@@ -31,4 +31,4 @@ RUN groupadd -r $FLUENT_USER && \
   chown -R $FLUENT_USER /fluentd && chgrp -R $FLUENT_USER /fluentd
 
 USER $FLUENT_USER
-CMD exec fluentd -c /fluentd/etc/fluent.conf
+CMD bundle exec fluentd -c /fluentd/etc/fluent.conf

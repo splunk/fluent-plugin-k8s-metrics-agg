@@ -13,3 +13,5 @@ gem 'http_parser.rb', '=0.5.3'
 gem 'bigdecimal', '=1.4.3'
 
 gem "fluent-plugin-splunk-hec", "= 1.2.1"
+
+gem 'fluent-plugin-k8s-metrics-agg', path: 'gem/'
