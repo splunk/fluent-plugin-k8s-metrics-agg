@@ -24,6 +24,6 @@ namespace :docker do
     raise 'Argument `tag` was not provided.' unless args.tag
 
     cp Dir['pkg/fluent-plugin-k8s-metrics-agg-*.gem'], 'docker/'
-    sh "docker build --no-cache -t splunk/fluent-plugin-k8s-metrics-agg:#{args.tag} ./docker"
+    sh "docker build  --no-cache --pull --build-arg VERSION=$(cat VERSION) -t splunk/fluent-plugin-k8s-metrics-agg:#{args.tag} ./docker"
   end
 end
