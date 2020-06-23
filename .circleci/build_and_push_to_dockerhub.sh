@@ -6,7 +6,7 @@ echo "Copying licenses to be included in the docker image..."
 mkdir docker/licenses
 cp -rp LICENSE docker/licenses/
 VERSION=`cat VERSION`
-docker build --build-arg VERSION=$VERSION --no-cache -t splunk/fluent-plugin-k8s-metrics-agg:metrics-aggregator ./docker
+docker build --no-cache --pull --build-arg VERSION=$VERSION -t splunk/fluent-plugin-k8s-metrics-agg:metrics-aggregator ./docker
 docker tag splunk/fluent-plugin-k8s-metrics-agg:metrics-aggregator splunk/${DOCKERHUB_REPO_NAME}:${VERSION}
 docker tag splunk/fluent-plugin-k8s-metrics-agg:metrics-aggregator splunk/${DOCKERHUB_REPO_NAME}:latest
 echo "Push docker image to splunk dockerhub..."
