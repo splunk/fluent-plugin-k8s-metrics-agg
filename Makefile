@@ -28,5 +28,6 @@ install-deps:
 
 unpack: build
 	@cp pkg/fluent-plugin-*.gem docker
+	@rm docker/gem/*
 	@gem unpack docker/fluent-plugin-*.gem --target docker/gem
 	@cd docker && bundle install
