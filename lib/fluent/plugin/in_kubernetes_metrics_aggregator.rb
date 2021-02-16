@@ -575,23 +575,25 @@ module Fluent
 
             node_response = JSON.parse(node_rest_client.get(@client.headers))
             Array(node_response['pods']).each do |pod_json|
-              pod_cpu_usage = pod_json['cpu'].fetch('usageNanoCores', 0)/ 1_000_000
-              pod_memory_usage = pod_json['memory'].fetch('usageBytes', 0)
-              pod_namespace = pod_json['podRef']['namespace']
-              pod_usage = ResourceUsageMetricsUnit.new
-              pod_usage.add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
-              if @@namespace_resource_usage_metrics_map[pod_namespace].nil?
-                namespace_usage_metrics = ResourceUsageMetricsUnit.new
-                @@namespace_resource_usage_metrics_map[pod_namespace] = pod_usage
-              else
-                @@namespace_resource_usage_metrics_map[pod_namespace].add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
+              unless pod_json['cpu'].nil? || pod_json['memory'].nil?
+                pod_cpu_usage = pod_json['cpu'].fetch('usageNanoCores', 0)/ 1_000_000
+                pod_memory_usage = pod_json['memory'].fetch('usageBytes', 0)
+                pod_namespace = pod_json['podRef']['namespace']
+                pod_usage = ResourceUsageMetricsUnit.new
+                pod_usage.add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
+                if @@namespace_resource_usage_metrics_map[pod_namespace].nil?
+                  namespace_usage_metrics = ResourceUsageMetricsUnit.new
+                  @@namespace_resource_usage_metrics_map[pod_namespace] = pod_usage
+                else
+                  @@namespace_resource_usage_metrics_map[pod_namespace].add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
+                end
+                if @@node_resource_usage_metrics_map[node_name].nil?
+                  node_name_usage_metrics = ResourceUsageMetricsUnit.new
+                  @@node_resource_usage_metrics_map[node_name] = node_name_usage_metrics
+                end
+                @@node_resource_usage_metrics_map[node_name].add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
+                pod_usage = nil
               end
-              if @@node_resource_usage_metrics_map[node_name].nil?
-                node_name_usage_metrics = ResourceUsageMetricsUnit.new
-                @@node_resource_usage_metrics_map[node_name] = node_name_usage_metrics
-              end
-              @@node_resource_usage_metrics_map[node_name].add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
-              pod_usage = nil
             end
           end
         end
