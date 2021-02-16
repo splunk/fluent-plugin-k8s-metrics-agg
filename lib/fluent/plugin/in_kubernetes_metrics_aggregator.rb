@@ -575,16 +575,6 @@ module Fluent
 
             node_response = JSON.parse(node_rest_client.get(@client.headers))
             Array(node_response['pods']).each do |pod_json|
-              # if pod_json['cpu'].nil?
-              #   pod_cpu_usage = 0
-              # else
-              #   pod_cpu_usage = pod_json['cpu'].fetch('usageNanoCores', 0)/ 1_000_000
-              # end
-              # if pod_json['memory'].nil?
-              #   pod_memory_usage = 0
-              # else
-              #   pod_memory_usage = pod_json['memory'].fetch('usageBytes', 0)
-              # end
               unless pod_json['cpu'].nil? || pod_json['memory'].nil?
                 pod_cpu_usage = pod_json['cpu'].fetch('usageNanoCores', 0)/ 1_000_000
                 pod_memory_usage = pod_json['memory'].fetch('usageBytes', 0)

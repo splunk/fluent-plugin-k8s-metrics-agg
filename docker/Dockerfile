@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ruby-25
+FROM registry.access.redhat.com/ubi8/ruby-27
 
 ARG VERSION
 
@@ -19,9 +19,13 @@ COPY licenses /licenses
 COPY *.gem /tmp/
 
 COPY Gemfile* ./
-RUN gem install bundler \
+RUN yum update -y \
+   && npm install -g n \
+   && yum remove -y nodejs \
+   && n ${NODEJS_VERSION} \
+   && gem install bundler \
    && gem unpack /tmp/*.gem --target gem \
-   && bundle install
+   && bundle install 
 
 RUN groupadd -r $FLUENT_USER && \
   useradd -r -g $FLUENT_USER $FLUENT_USER && \

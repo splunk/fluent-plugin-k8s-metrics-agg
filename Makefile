@@ -1,10 +1,11 @@
 VERSION := $(shell sh -c 'cat VERSION')
+NODEJS_VERSION := 14.15.1
 
 clean_pkg: 
 	@rm -rf pkg/* docker/*.gem 
 
 clean_gems:
-	@rm -rf docker/gem/ docker/gems/
+	@rm -rf docker/gem/* docker/gems/*
 
 clean: clean_pkg clean_gems
 	@rm -rf docker/licenses
@@ -16,7 +17,7 @@ docker: build install-deps
 	@cp pkg/fluent-plugin-*.gem docker
 	@mkdir -p docker/licenses
 	@cp -rp LICENSE docker/licenses/
-	@docker build --no-cache --pull --build-arg VERSION=$(VERSION) -t splunk/k8s-metrics-aggr:$(VERSION) ./docker
+	@docker build --no-cache --pull --build-arg VERSION=$(VERSION) --build-arg NODEJS_VERSION=$(NODEJS_VERSION) -t splunk/k8s-metrics-aggr:$(VERSION) ./docker
 
 unit-test: 
 	@bundle exec rake test
@@ -28,6 +29,7 @@ install-deps:
 
 unpack: build
 	@cp pkg/fluent-plugin-*.gem docker
-	@rm docker/gem/*
+	@mkdir -p docker/gem
+	@rm -rf docker/gem
 	@gem unpack docker/fluent-plugin-*.gem --target docker/gem
 	@cd docker && bundle install
