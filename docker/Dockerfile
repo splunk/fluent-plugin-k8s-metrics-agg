@@ -1,6 +1,7 @@
 FROM registry.access.redhat.com/ubi8/ruby-27
 
 ARG VERSION
+ARG NODEJS_VERSION
 
 LABEL name="Splunk Connect for Kubernetes Metrics Aggregator container" \
       maintainer="DataEdge@splunk.com" \
