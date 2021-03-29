@@ -13,6 +13,6 @@ gem 'multi_json', '=1.14.1'
 gem 'http_parser.rb', '=0.5.3'
 gem 'bigdecimal', '=3.0.0'
 
-gem "fluent-plugin-splunk-hec", ">= 1.2.3"
+gem "fluent-plugin-splunk-hec", ">= 1.2.5"
 
 gem 'fluent-plugin-k8s-metrics-agg', path: 'gem/'
