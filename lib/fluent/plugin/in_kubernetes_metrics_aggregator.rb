@@ -66,29 +66,35 @@ module Fluent
         end
 
         # https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#meaning-of-memory
+        # 1 Ki = 1024 bytes
+        # 1 K = 1000 bytes = 1000/1024 Ki = 1000/1024*1024 Mi
         def get_memory_mult(memory)
-          memory_mult = if memory[-2] == 'Ki'
-                          0.001
-                        elsif memory[-2] == 'K'
-                          1.0 / 1024
-                        elsif memory[-2] == 'Mi'
+          memory_mult = if memory[-2..] == 'Ki'
+                          1/1024
+                        elsif memory[-1] == 'K'
+                          1e3 / 1024 ** 2
+                        elsif memory[-2..] == 'Mi'
                           1
-                        elsif memory[-2] == 'M'
-                          1
-                        elsif memory[-2] == 'Gi'
-                          1000
-                        elsif memory[-2] == 'G'
+                        elsif memory[-1] == 'M'
+                          1e6 / 1024 ** 2
+                        elsif memory[-2..] == 'Gi'
                           1024
-                        elsif memory[-2] == 'Ti'
-                          1_000_000
-                        elsif memory[-2] == 'T'
-                          1_048_576
-                        elsif memory[-2] == 'Ei'
-                          1_000_000_000
+                        elsif memory[-1] == 'G'
+                          1e9 / 1024 ** 2
+                        elsif memory[-2..] == 'Ti'
+                          1024 ** 2
+                        elsif memory[-1] == 'T'
+                          1e12 / 1024 ** 2
+                        elsif memory[-2..] == 'Pi'
+                          1024**3
+                        elsif memory[-2] == 'P'
+                          1e15 / 1024 ** 2
+                        elsif memory[-2..] == 'Ei'
+                          1024**4
                         elsif memory[-2] == 'E'
-                          1_073_741_824
+                          1e18 / 1024 ** 2
                         else
-                          0.000001
+                          1 / 1024 ** 2
                         end
           memory_mult
         end
@@ -285,28 +291,32 @@ module Fluent
       end
 
       def get_memory_mult(memory)
-        memory_mult = if memory[-2] == 'Ki'
-                        0.001
-                      elsif memory[-2] == 'K'
-                        1.0 / 1024
-                      elsif memory[-2] == 'Mi'
+        memory_mult = if memory[-2..] == 'Ki'
+                        1/1024
+                      elsif memory[-1] == 'K'
+                        1e3 / 1024 ** 2
+                      elsif memory[-2..] == 'Mi'
                         1
-                      elsif memory[-2] == 'M'
-                        1
-                      elsif memory[-2] == 'Gi'
-                        1000
-                      elsif memory[-2] == 'G'
+                      elsif memory[-1] == 'M'
+                        1e6 / 1024 ** 2
+                      elsif memory[-2..] == 'Gi'
                         1024
-                      elsif memory[-2] == 'Ti'
-                        1_000_000
-                      elsif memory[-2] == 'T'
-                        1_048_576 # 1024*1024
-                      elsif memory[-2] == 'Ei'
-                        1_000_000_000
+                      elsif memory[-1] == 'G'
+                        1e9 / 1024 ** 2
+                      elsif memory[-2..] == 'Ti'
+                        1024 ** 2
+                      elsif memory[-1] == 'T'
+                        1e12 / 1024 ** 2
+                      elsif memory[-2..] == 'Pi'
+                        1024**3
+                      elsif memory[-2] == 'P'
+                        1e15 / 1024 ** 2
+                      elsif memory[-2..] == 'Ei'
+                        1024**4
                       elsif memory[-2] == 'E'
-                        1_073_741_824 # 1024*1024*1024
+                        1e18 / 1024 ** 2
                       else
-                        0.000001
+                        1 / 1024 ** 2
                       end
         memory_mult
       end
