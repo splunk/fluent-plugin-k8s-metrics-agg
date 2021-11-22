@@ -51,11 +51,11 @@ module Fluent
           # m cpu is assumed standard
           @cpu_mult = 1
           @cpu_mult = 1000 if cpu[-1] != 'm'
-          cpu.delete('^0-9').to_i
+          cpu.delete('^0-9.').to_i
         end
 
         def get_cpu_or_memory_value(resource)
-          resource = resource.tr('^0-9', '').to_i
+          resource = resource.tr('^0-9.', '').to_i
           resource
         end
 
@@ -70,7 +70,7 @@ module Fluent
         # 1 K = 1000 bytes = 1000/1024 Ki = 1000/1024*1024 Mi
         def get_memory_mult(memory)
           memory_mult = if memory[-2..] == 'Ki'
-                          1/1024
+                          1.0/1024
                         elsif memory[-1] == 'K'
                           1e3 / 1024 ** 2
                         elsif memory[-2..] == 'Mi'
@@ -284,15 +284,15 @@ module Fluent
       end
 
       def get_cpu_value(resource)
-        cpu_val = resource.tr('^0-9', '').to_i
+        cpu_val = resource.tr('^0-9.', '').to_i
         mult = get_cpu_mult(resource)
-        cpu_val += cpu_val * mult
+        cpu_val = cpu_val * mult
         cpu_val
       end
 
       def get_memory_mult(memory)
         memory_mult = if memory[-2..] == 'Ki'
-                        1/1024
+                        1.0/1024
                       elsif memory[-1] == 'K'
                         1e3 / 1024 ** 2
                       elsif memory[-2..] == 'Mi'
@@ -322,9 +322,9 @@ module Fluent
       end
 
       def get_memory_value(resource)
-        mem_val = resource.tr('^0-9', '').to_i
+        mem_val = resource.tr('^0-9.', '').to_i
         mult = get_memory_mult(resource)
-        mem_val += mem_val * mult
+        mem_val = mem_val * mult
         mem_val
       end
 
@@ -523,7 +523,7 @@ module Fluent
           router.emit generate_tag('node') << ('.cpu.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_utilization
           node_cpu_reservation = node_req_lim.instance_variable_get(:@cpu_request).to_f / node_cpu_allocatable
           router.emit generate_tag('node') << ('.cpu.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_cpu_reservation
-          node_memory_utilization = node_res_usage.instance_variable_get(:@memory_usage).to_f / 1_000_000 * node_memory_allocatable # converting from bytes to megabytes
+          node_memory_utilization = node_res_usage.instance_variable_get(:@memory_usage).to_f /  node_memory_allocatable # converting from bytes to megabytes
           router.emit generate_tag('node') << ('.memory.utilization'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_utilization
           node_memory_reservation = node_req_lim.instance_variable_get(:@memory_request).to_f / node_memory_allocatable
           router.emit generate_tag('node') << ('.memory.reservation'), Fluent::EventTime.from_time(@scraped_node_at), 'node' => node_name, 'value' => node_memory_reservation
@@ -587,7 +587,7 @@ module Fluent
             Array(node_response['pods']).each do |pod_json|
               unless pod_json['cpu'].nil? || pod_json['memory'].nil?
                 pod_cpu_usage = pod_json['cpu'].fetch('usageNanoCores', 0)/ 1_000_000
-                pod_memory_usage = pod_json['memory'].fetch('usageBytes', 0)
+                pod_memory_usage = pod_json['memory'].fetch('usageBytes', 0) / 1024 ** 2 # Converting to Mi
                 pod_namespace = pod_json['podRef']['namespace']
                 pod_usage = ResourceUsageMetricsUnit.new
                 pod_usage.add_resource_usage_metrics(pod_cpu_usage, pod_memory_usage)
