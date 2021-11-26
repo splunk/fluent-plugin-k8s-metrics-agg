@@ -573,7 +573,13 @@ module Fluent
                 end
               end
 
-            node_response = JSON.parse(node_rest_client.get(@client.headers))
+            begin
+              node_response = JSON.parse(node_rest_client.get(@client.headers))
+            rescue RestClient::ServiceUnavailable
+              log.warn("Couldn't scrap metric for node '#{node_name} as it is unavailable. Ignoring it.'")
+              next
+            end
+            
             Array(node_response['pods']).each do |pod_json|
               unless pod_json['cpu'].nil? || pod_json['memory'].nil?
                 pod_cpu_usage = pod_json['cpu'].fetch('usageNanoCores', 0)/ 1_000_000
