@@ -635,8 +635,9 @@ module Fluent
                       if @@node_resource_usage_metrics_map[node_name].nil?
                         node_name_usage_metrics = ResourceUsageMetricsUnit.new
                         @@node_resource_usage_metrics_map[node_name] = node_name_usage_metrics
+                      else
+                        @@node_resource_usage_metrics_map[node_name].add_resource_usage_metrics(container_cpu_usage, container_memory_usage)
                       end
-                      @@node_resource_usage_metrics_map[node_name].add_resource_usage_metrics(container_cpu_usage, container_memory_usage)
                       container_usage = nil
                     end
                   end
