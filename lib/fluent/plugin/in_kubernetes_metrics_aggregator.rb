@@ -428,7 +428,7 @@ module Fluent
                 end
               end
               container_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
-              container_labels = { 'name' => container_json['name'], 'image' => container_json['image'], 'node' => pod_json['spec']['nodeName'] }
+              container_labels = { 'pod-name' => pod_json['metadata']['name'], 'namespace' => pod_json['metadata']['namespace'], 'name' => container_json['name'], 'image' => container_json['image'], 'node' => pod_json['spec']['nodeName'] }
               emit_limits_requests_metrics(generate_tag('container'), @scraped_at, container_labels, container_usage_metrics)
               pod_usage_metrics.add_usage_metrics(cpu_limit, cpu_request, memory_limit, memory_request)
             end
@@ -596,7 +596,7 @@ module Fluent
               log.warn("Couldn't scrap metric for node '#{node_name} as it is unavailable. Ignoring it.'")
               next
             end
-            
+
             Array(node_response['pods']).each do |pod_json|
               unless pod_json['cpu'].nil? || pod_json['memory'].nil?
                 pod_cpu_usage = pod_json['cpu'].fetch('usageNanoCores', 0)/ 1_000_000.to_f
