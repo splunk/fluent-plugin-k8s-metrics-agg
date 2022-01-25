@@ -14,7 +14,7 @@ build: clean_pkg
 
 .PHONY: docker
 docker: 
-	@docker build --no-cache --pull --build-arg VERSION=$(VERSION) -t splunk/k8s-metrics-aggr:$(VERSION) . -f docker/Dockerfile
+	@docker build --no-cache --pull --build-arg VERSION=$(VERSION) -t splunk/k8s-metrics-aggr:$(VERSION) . -f docker/Dockerfile 
 
 unit-test: 
 	@bundle exec rake test
