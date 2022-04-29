@@ -10,7 +10,7 @@ gem "fluent-plugin-kubernetes_metadata_filter", ">=2.9.2"
 gem "kubeclient", "=4.9.3"
 gem "oj", "=3.10.2"
 gem 'multi_json', '=1.14.1'
-gem 'http_parser.rb', '=0.5.3'
+gem 'http_parser.rb', '=0.8.0'
 gem 'bigdecimal', '=3.0.0'
 
 gem "fluent-plugin-splunk-hec", ">= 1.2.7"
