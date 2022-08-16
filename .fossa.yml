@@ -1,0 +1,5 @@
+version: 3
+server: https://app.fossa.com
+project:
+  id: "fluent-plugin-k8s-metrics-agg"
+  team: "TA-Automation"

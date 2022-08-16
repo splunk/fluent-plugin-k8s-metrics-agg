@@ -177,6 +177,10 @@ module Fluent
 
       private
 
+      def update_kubeclient_header
+        @client.headers[:Authorization] = 'Bearer ' + File.read(@bearer_token_file) if @bearer_token_file
+      end
+
       def parse_tag
         @tag_prefix, @tag_suffix = @tag.split('*') if @tag.include?('*')
       end
@@ -371,6 +375,7 @@ module Fluent
       end
 
       def scrape_limits_requests_metrics
+        update_kubeclient_header
         response = limits_requests_api.get(@client.headers)
         handle_limits_requests_res(response)
       rescue StandardError => e
@@ -473,6 +478,7 @@ module Fluent
       end
 
       def scrape_node_metrics
+        update_kubeclient_header
         response = node_api.get(@client.headers)
         handle_node_response(response)
       rescue StandardError => e
@@ -556,6 +562,7 @@ module Fluent
       end
 
       def scrape_resource_usage_metrics
+        update_kubeclient_header
         response = resource_usage_api.get(@client.headers)
         handle_resource_usage_response(response)
       rescue StandardError => e
