@@ -15,6 +15,7 @@ require 'time'
 require 'fluent/plugin/input'
 require 'kubeclient'
 require 'multi_json'
+require 'resolv'
 module Fluent
   module Plugin
     class KubernetesMetricsAggregatorInput < Fluent::Plugin::Input
@@ -211,6 +212,7 @@ module Fluent
         if @kubernetes_url.nil?
           # Use Kubernetes default service account if we're in a pod.
           env_host = ENV['KUBERNETES_SERVICE_HOST']
+          env_host = "[#{env_host}]" if env_host =~ Resolv::IPv6::Regex
           env_port = ENV['KUBERNETES_SERVICE_PORT']
           if env_host && env_port
             kubernetes_url_final = "https://#{env_host}:#{env_port}/api/"
