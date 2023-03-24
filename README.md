@@ -1,3 +1,7 @@
+# End of Support
+
+**Important:** The fluent-plugin-k8s-metrics-agg will reach End of Support on January 1, 2024. After that date, this repository will no longer receive updates from Splunk and will no longer be supported by Splunk. Until then, only critical security fixes and bug fixes will be provided.
+
 # Fluentd Plugin for Kubernetes Metrics - Aggregator
 
 [Fluentd](https://fluentd.org/) input plugin collects kubernetes cluster metrics from the kubeapiserver API. The API is exposed by [KubeApiServer](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/) on a kubernetes cluster.
